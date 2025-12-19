@@ -1,6 +1,5 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
-# More info on Python, GitHub Actions, and Azure App Service: https://aka.ms/python-webapps-actions
 
 name: Build and deploy Python app to Azure Web App - ai-nids-app
 
@@ -22,20 +21,15 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Create and start virtual environment
+      - name: Create deployment package
         run: |
-          python -m venv venv
-          source venv/bin/activate
-
-      - name: Install dependencies
-        run: |
-          source venv/bin/activate
-          pip install --upgrade pip
-          pip install -r requirements-azure.txt
+          cp requirements-azure.txt requirements.txt
+          zip -r deploy.zip . -x "*.git*" -x "*__pycache__*" -x "*.pyc" -x "venv/*" -x ".venv/*" -x "notebooks/*" -x "data/datasets/*" -x "data/raw/*" -x "tests/*" -x "*.ipynb"
 
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v2
         with:
           app-name: 'ai-nids-app'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
+          package: deploy.zip
           
