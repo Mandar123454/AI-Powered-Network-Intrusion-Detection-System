@@ -678,12 +678,12 @@ If you find this project useful, please consider giving it a ⭐!
 
 ### Built with ❤️ for the Security Community
 
-[![GitHub](https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github)](https://github.com/yourusername/ai-nids)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0A66C2?style=for-the-badge&logo=linkedin)](https://linkedin.com/in/yourusername)
+[![GitHub](https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github)](https://github.com/Mandar123454/AI-Powered-Network-Intrusion-Detection-System)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0A66C2?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/in/mandar-kajbaje-29988531a/)
 
-[🐛 Report Bug](https://github.com/yourusername/ai-nids/issues) • 
-[✨ Request Feature](https://github.com/yourusername/ai-nids/issues) • 
-[📖 Documentation](https://github.com/yourusername/ai-nids/wiki)
+[🐛 Report Bug](https://github.com/Mandar123454/ai-nids/issues) • 
+[✨ Request Feature](https://github.com/Mandar123454/ai-nids/issues) • 
+[📖 Documentation](https://github.com/Mandar123454/ai-nids/wiki)
 
 ---
 
