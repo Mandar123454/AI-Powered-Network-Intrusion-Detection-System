@@ -1,0 +1,297 @@
+{% extends "base.html" %}
+
+{% block title %}Threat Analytics{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">
+            <i class="bi bi-bug text-danger"></i>
+            Threat Analytics
+        </h1>
+        <p class="page-subtitle">Deep threat analysis, attack patterns, and intelligence insights</p>
+    </div>
+    <div class="header-actions">
+        <select class="form-select time-filter" id="time-range">
+            <option value="7" {% if days == 7 %}selected{% endif %}>Last 7 Days</option>
+            <option value="30" {% if days == 30 %}selected{% endif %}>Last 30 Days</option>
+            <option value="90" {% if days == 90 %}selected{% endif %}>Last 90 Days</option>
+        </select>
+        <a href="{{ url_for('analytics.export_pdf_report', days=days) }}" class="btn btn-pdf-report">
+            <i class="bi bi-file-earmark-pdf me-2"></i>Generate PDF Report
+        </a>
+    </div>
+</div>
+
+<!-- Threat Stats -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon red">
+            <i class="bi bi-shield-exclamation"></i>
+        </div>
+        <div class="stat-content">
+            <h3>{{ threat_data.total_threats | default(0) }}</h3>
+            <p>Total Threats</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon orange">
+            <i class="bi bi-exclamation-triangle"></i>
+        </div>
+        <div class="stat-content">
+            <h3>{{ threat_data.critical_count | default(0) }}</h3>
+            <p>Critical Alerts</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon purple">
+            <i class="bi bi-geo-alt"></i>
+        </div>
+        <div class="stat-content">
+            <h3>{{ threat_data.unique_sources | default(0) }}</h3>
+            <p>Unique Sources</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon teal">
+            <i class="bi bi-shield-check"></i>
+        </div>
+        <div class="stat-content">
+            <h3>{{ threat_data.blocked_count | default(0) }}</h3>
+            <p>Blocked Attacks</p>
+        </div>
+    </div>
+</div>
+
+<!-- Charts -->
+<div class="charts-grid">
+    <div class="chart-card">
+        <div class="card-header">
+            <h3><i class="bi bi-bar-chart"></i> Attack Types Distribution</h3>
+        </div>
+        <div class="card-body">
+            <canvas id="attackTypesChart" height="300"></canvas>
+        </div>
+    </div>
+    
+    <div class="chart-card">
+        <div class="card-header">
+            <h3><i class="bi bi-graph-up-arrow"></i> Threat Trend</h3>
+        </div>
+        <div class="card-body">
+            <canvas id="threatTrendChart" height="300"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Threat Intelligence Feed -->
+<div class="chart-card full-width">
+    <div class="card-header">
+        <h3><i class="bi bi-lightning"></i> Recent Threat Activity</h3>
+    </div>
+    <div class="card-body">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>Threat Type</th>
+                    <th>Source IP</th>
+                    <th>Target</th>
+                    <th>Severity</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for threat in threat_data.recent_threats[:10] %}
+                <tr>
+                    <td>{{ threat.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td><span class="badge bg-danger">{{ threat.attack_type }}</span></td>
+                    <td><code>{{ threat.source_ip }}</code></td>
+                    <td><code>{{ threat.target }}</code></td>
+                    <td>
+                        {% if threat.severity == 'critical' %}
+                        <span class="badge bg-danger">Critical</span>
+                        {% elif threat.severity == 'high' %}
+                        <span class="badge bg-orange">High</span>
+                        {% else %}
+                        <span class="badge bg-warning">Medium</span>
+                        {% endif %}
+                    </td>
+                    <td><span class="badge bg-success">Mitigated</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-4">
+                        <i class="bi bi-shield-check fs-1 d-block mb-2 text-success"></i>
+                        No threats detected. Your network is secure!
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- MITRE ATT&CK Heatmap -->
+<div class="chart-card full-width">
+    <div class="card-header">
+        <h3><i class="bi bi-grid-3x3"></i> MITRE ATT&CK Coverage</h3>
+    </div>
+    <div class="card-body">
+        <div class="mitre-heatmap">
+            <div class="mitre-tactic">
+                <h6>Initial Access</h6>
+                <div class="technique-grid">
+                    <span class="technique detected" title="Phishing">T1566</span>
+                    <span class="technique" title="External Remote Services">T1133</span>
+                    <span class="technique" title="Valid Accounts">T1078</span>
+                </div>
+            </div>
+            <div class="mitre-tactic">
+                <h6>Execution</h6>
+                <div class="technique-grid">
+                    <span class="technique detected" title="Command Line Interface">T1059</span>
+                    <span class="technique" title="PowerShell">T1086</span>
+                    <span class="technique" title="Scripting">T1064</span>
+                </div>
+            </div>
+            <div class="mitre-tactic">
+                <h6>Persistence</h6>
+                <div class="technique-grid">
+                    <span class="technique" title="Registry Run Keys">T1547</span>
+                    <span class="technique detected" title="Scheduled Task">T1053</span>
+                    <span class="technique" title="Create Account">T1136</span>
+                </div>
+            </div>
+            <div class="mitre-tactic">
+                <h6>Lateral Movement</h6>
+                <div class="technique-grid">
+                    <span class="technique detected" title="Remote Services">T1021</span>
+                    <span class="technique" title="Pass the Hash">T1550</span>
+                    <span class="technique" title="SMB">T1570</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.mitre-heatmap {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+}
+
+.mitre-tactic h6 {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    margin-bottom: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.technique-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.technique {
+    padding: 0.35rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--bg-hover);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.technique:hover {
+    background: var(--primary);
+    color: white;
+}
+
+.technique.detected {
+    background: rgba(220, 53, 69, 0.2);
+    color: var(--danger);
+    border: 1px solid var(--danger);
+}
+
+.bg-orange {
+    background-color: #fd7e14 !important;
+}
+</style>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Attack Types Chart
+const attackCtx = document.getElementById('attackTypesChart').getContext('2d');
+new Chart(attackCtx, {
+    type: 'bar',
+    data: {
+        labels: {{ threat_data.attack_labels | default(['DDoS', 'Port Scan', 'Brute Force', 'SQL Injection', 'XSS', 'Malware']) | tojson }},
+        datasets: [{
+            label: 'Attacks',
+            data: {{ threat_data.attack_values | default([12, 8, 5, 3, 2, 1]) | tojson }},
+            backgroundColor: [
+                'rgba(220, 53, 69, 0.8)',
+                'rgba(253, 126, 20, 0.8)',
+                'rgba(255, 193, 7, 0.8)',
+                'rgba(111, 66, 193, 0.8)',
+                'rgba(13, 110, 253, 0.8)',
+                'rgba(32, 201, 151, 0.8)'
+            ],
+            borderRadius: 8
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+            x: { grid: { display: false }, ticks: { color: '#a0a0a0' } },
+            y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#a0a0a0' } }
+        }
+    }
+});
+
+// Threat Trend Chart
+const trendCtx = document.getElementById('threatTrendChart').getContext('2d');
+new Chart(trendCtx, {
+    type: 'line',
+    data: {
+        labels: {{ threat_data.trend_labels | default(['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']) | tojson }},
+        datasets: [{
+            label: 'Threats',
+            data: {{ threat_data.trend_values | default([5, 8, 3, 12, 6, 2, 4]) | tojson }},
+            borderColor: '#dc3545',
+            backgroundColor: 'rgba(220, 53, 69, 0.1)',
+            fill: true,
+            tension: 0.4
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+            x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#a0a0a0' } },
+            y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#a0a0a0' } }
+        }
+    }
+});
+
+document.getElementById('time-range').addEventListener('change', function() {
+    window.location.href = '?days=' + this.value;
+});
+</script>
+{% endblock %}

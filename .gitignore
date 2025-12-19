@@ -1,0 +1,162 @@
+# AI-NIDS Git Ignore
+# ==========================================
+
+# ------------------------------------------
+# Personal/Local Files (DO NOT PUSH)
+# ------------------------------------------
+HOW_TO_RUN.md
+.env.local
+*.local.py
+personal_notes.txt
+my_notes/
+local_config/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Translations
+*.mo
+*.pot
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# Flask instance folder
+instance/
+
+# Database files
+*.db
+*.sqlite
+
+# Log files
+*.log
+logs/
+
+# ML Models (large files)
+models/*.pt
+models/*.pkl
+models/*.json
+models/*.h5
+!models/.gitkeep
+
+# Data files
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
+# SSL certificates
+deployment/ssl/
+*.pem
+*.key
+*.crt
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Docker
+*.tar
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Secret files
+.secrets
+secrets.yaml
+secrets.json
+# Session files
+flask_session/
+.session/
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# PDF reports (generated)
+reports/generated/*.pdf
+
+# Keep these directories
+!data/.gitkeep
+!logs/.gitkeep
+!models/saved/.gitkeep
+!reports/.gitkeep

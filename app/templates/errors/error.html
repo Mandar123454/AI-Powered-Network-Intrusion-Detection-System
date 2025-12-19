@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error {{ error_code }} | AI-NIDS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body>
+<div class="cyber-error-container error-generic">
+    <!-- Dynamic Background -->
+    <div class="dynamic-field"></div>
+    <div class="matrix-rain"></div>
+    
+    <!-- Orbiting Elements -->
+    <div class="orbit-container">
+        <div class="orbit o1"></div>
+        <div class="orbit o2"></div>
+        <div class="orbit o3"></div>
+    </div>
+    
+    <!-- Error Core -->
+    <div class="error-core">
+        <!-- Status Ring -->
+        <div class="status-ring">
+            <svg viewBox="0 0 100 100" class="ring-svg">
+                <circle cx="50" cy="50" r="45" fill="none" stroke="rgba(0, 242, 254, 0.1)" stroke-width="2"/>
+                <circle cx="50" cy="50" r="45" fill="none" stroke="url(#ringGrad)" stroke-width="2" 
+                        stroke-dasharray="70 200" class="ring-progress"/>
+                <defs>
+                    <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" style="stop-color:#00f2fe"/>
+                        <stop offset="50%" style="stop-color:#4facfe"/>
+                        <stop offset="100%" style="stop-color:#00f2fe"/>
+                    </linearGradient>
+                </defs>
+            </svg>
+        </div>
+        
+        <!-- Error Code Display -->
+        <div class="error-code-wrapper">
+            <h1 class="error-code dynamic-glitch" data-text="{{ error_code }}">{{ error_code }}</h1>
+            <div class="code-underline"></div>
+        </div>
+        
+        <!-- Error Message Box -->
+        <div class="message-box">
+            <div class="message-header">
+                <span class="header-icon">◉</span>
+                <span>SYSTEM NOTIFICATION</span>
+            </div>
+            <h2 class="message-title">{{ error_title }}</h2>
+            <p class="message-description">{{ error_message }}</p>
+        </div>
+        
+        <!-- Diagnostics -->
+        <div class="diag-strip">
+            <div class="diag-item">
+                <span class="diag-dot"></span>
+                <span class="diag-text">Code: {{ error_code }}</span>
+            </div>
+            <div class="diag-separator">|</div>
+            <div class="diag-item">
+                <span class="diag-dot"></span>
+                <span class="diag-text">Status: HANDLED</span>
+            </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <a href="{{ url_for('dashboard.index') }}" class="cyber-btn primary">
+                <i class="bi bi-shield-check"></i>
+                <span>COMMAND CENTER</span>
+            </a>
+            <button onclick="history.back()" class="cyber-btn secondary">
+                <i class="bi bi-arrow-counterclockwise"></i>
+                <span>TRACE BACK</span>
+            </button>
+        </div>
+        
+        {% if error_code == 404 %}
+        <!-- Navigation Suggestions -->
+        <div class="nav-suggestions">
+            <div class="sugg-header">AVAILABLE PATHWAYS</div>
+            <div class="sugg-links">
+                <a href="{{ url_for('dashboard.dashboard') }}" class="sugg-link">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="{{ url_for('alerts.alert_list') }}" class="sugg-link">
+                    <i class="bi bi-bell"></i>
+                    <span>Alerts</span>
+                </a>
+                <a href="{{ url_for('analytics.analytics_dashboard') }}" class="sugg-link">
+                    <i class="bi bi-graph-up"></i>
+                    <span>Analytics</span>
+                </a>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- System Status Footer -->
+        <div class="system-footer">
+            <span class="footer-status">
+                <span class="pulse-dot"></span>
+                AI-NIDS Active
+            </span>
+        </div>
+    </div>
+</div>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;900&display=swap');
+
+.cyber-error-container.error-generic {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0a0a0f 0%, #0d1117 50%, #0a0a0f 100%);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dynamic-field {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(ellipse at center, rgba(0, 242, 254, 0.05) 0%, transparent 60%);
+    animation: fieldPulse 4s ease-in-out infinite;
+}
+
+@keyframes fieldPulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+}
+
+.matrix-rain {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: linear-gradient(0deg, transparent 24%, rgba(0, 242, 254, 0.02) 25%, rgba(0, 242, 254, 0.02) 26%, transparent 27%, transparent 74%, rgba(0, 242, 254, 0.02) 75%, rgba(0, 242, 254, 0.02) 76%, transparent 77%);
+    background-size: 50px 50px;
+    animation: matrixMove 20s linear infinite;
+}
+
+@keyframes matrixMove {
+    0% { background-position: 0 0; }
+    100% { background-position: 0 100px; }
+}
+
+.orbit-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 400px;
+    height: 400px;
+    pointer-events: none;
+}
+
+.orbit {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    border: 1px solid rgba(0, 242, 254, 0.1);
+    border-radius: 50%;
+    animation: orbitRotate 20s linear infinite;
+}
+
+.orbit.o1 { width: 200px; height: 200px; margin: -100px 0 0 -100px; animation-duration: 15s; }
+.orbit.o2 { width: 300px; height: 300px; margin: -150px 0 0 -150px; animation-duration: 25s; animation-direction: reverse; }
+.orbit.o3 { width: 400px; height: 400px; margin: -200px 0 0 -200px; animation-duration: 35s; }
+
+@keyframes orbitRotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.error-core {
+    text-align: center;
+    z-index: 10;
+    padding: 2rem;
+    max-width: 500px;
+}
+
+.status-ring {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 1rem;
+}
+
+.ring-svg { width: 100%; height: 100%; }
+
+.ring-progress {
+    animation: ringDash 3s linear infinite;
+    transform-origin: center;
+}
+
+@keyframes ringDash {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.error-code {
+    font-size: clamp(5rem, 18vw, 10rem);
+    font-weight: 900;
+    font-family: 'Orbitron', sans-serif;
+    background: linear-gradient(135deg, #00f2fe 0%, #4facfe 50%, #00f2fe 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 30px rgba(0, 242, 254, 0.5));
+    margin-bottom: 0;
+}
+
+.dynamic-glitch {
+    animation: dynamicGlitch 4s infinite;
+}
+
+@keyframes dynamicGlitch {
+    0%, 92%, 100% { transform: translate(0); }
+    93% { transform: translate(-2px, 1px); }
+    95% { transform: translate(2px, -1px); }
+    97% { transform: translate(-1px, -1px); }
+}
+
+.code-underline {
+    width: 100px;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #00f2fe, transparent);
+    margin: 0.5rem auto 1.5rem;
+    animation: underlinePulse 2s ease-in-out infinite;
+}
+
+@keyframes underlinePulse {
+    0%, 100% { opacity: 0.5; width: 80px; }
+    50% { opacity: 1; width: 120px; }
+}
+
+.message-box {
+    background: rgba(0, 242, 254, 0.05);
+    border: 1px solid rgba(0, 242, 254, 0.15);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin: 1rem 0;
+}
+
+.message-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.7rem;
+    color: #00f2fe;
+    letter-spacing: 2px;
+}
+
+.header-icon {
+    animation: iconPulse 1.5s infinite;
+}
+
+@keyframes iconPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+}
+
+.message-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.3rem;
+    color: #fff;
+    margin-bottom: 0.5rem;
+    letter-spacing: 1px;
+}
+
+.message-description {
+    color: #8892a0;
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+.diag-strip {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin: 1.5rem 0;
+    font-size: 0.75rem;
+    color: #666;
+}
+
+.diag-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.diag-dot {
+    width: 6px;
+    height: 6px;
+    background: #00f2fe;
+    border-radius: 50%;
+    animation: dotPulse 1.5s infinite;
+}
+
+@keyframes dotPulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+.diag-separator { color: rgba(255, 255, 255, 0.1); }
+
+.action-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+    margin: 1.5rem 0;
+}
+
+.cyber-btn {
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 5px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.cyber-btn.primary {
+    background: linear-gradient(135deg, #00f2fe, #4facfe);
+    color: #0a0a0f;
+    box-shadow: 0 0 20px rgba(0, 242, 254, 0.3);
+}
+
+.cyber-btn.primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 30px rgba(0, 242, 254, 0.5);
+}
+
+.cyber-btn.secondary {
+    background: transparent;
+    color: #00f2fe;
+    border: 1px solid #00f2fe;
+}
+
+.cyber-btn.secondary:hover {
+    background: rgba(0, 242, 254, 0.1);
+    transform: translateY(-2px);
+}
+
+.nav-suggestions {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(0, 242, 254, 0.1);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-top: 1.5rem;
+}
+
+.sugg-header {
+    font-size: 0.65rem;
+    color: #666;
+    letter-spacing: 2px;
+    margin-bottom: 0.75rem;
+}
+
+.sugg-links {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.sugg-link {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: #00f2fe;
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+}
+
+.sugg-link:hover {
+    color: #4facfe;
+    transform: translateY(-1px);
+}
+
+.system-footer {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(0, 242, 254, 0.1);
+}
+
+.footer-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    color: #666;
+}
+
+.pulse-dot {
+    width: 8px;
+    height: 8px;
+    background: #00f2fe;
+    border-radius: 50%;
+    animation: pulseDot 2s infinite;
+    box-shadow: 0 0 10px #00f2fe;
+}
+
+@keyframes pulseDot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+@media (max-width: 768px) {
+    .action-buttons { flex-direction: column; align-items: center; }
+    .cyber-btn { width: 100%; max-width: 250px; justify-content: center; }
+    .sugg-links { flex-direction: column; gap: 0.75rem; }
+}
+</style>
+</body>
+</html>

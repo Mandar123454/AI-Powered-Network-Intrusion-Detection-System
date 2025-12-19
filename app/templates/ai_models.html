@@ -1,0 +1,747 @@
+{% extends "base.html" %}
+
+{% block title %}AI Defense Models - AI-NIDS{% endblock %}
+
+{% block content %}
+<div class="ai-models-page">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">
+                <i class="bi bi-robot text-primary"></i>
+                AI Defense Models
+            </h1>
+            <p class="page-subtitle">Intelligent model selection for optimal threat defense</p>
+        </div>
+        <div class="header-actions">
+            <button class="btn btn-outline-primary" onclick="refreshModelStats()">
+                <i class="bi bi-arrow-clockwise me-2"></i>Refresh Stats
+            </button>
+        </div>
+    </div>
+    
+    <!-- Current Defense Status -->
+    <div class="defense-status-card glass-card mb-4">
+        <div class="card-header">
+            <h3><i class="bi bi-shield-check me-2"></i>Active Defense Status</h3>
+            <span class="live-badge"><span class="pulse"></span> LIVE</span>
+        </div>
+        <div class="card-body">
+            <div class="defense-grid">
+                <div class="defense-stat">
+                    <div class="stat-icon primary">
+                        <i class="bi bi-cpu"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="active-models">4</span>
+                        <span class="stat-label">Active Models</span>
+                    </div>
+                </div>
+                <div class="defense-stat">
+                    <div class="stat-icon success">
+                        <i class="bi bi-check-circle"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="threats-blocked">{{ stats.threats_blocked or 1247 }}</span>
+                        <span class="stat-label">Threats Blocked</span>
+                    </div>
+                </div>
+                <div class="defense-stat">
+                    <div class="stat-icon warning">
+                        <i class="bi bi-lightning"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="avg-response">{{ stats.avg_response or '12ms' }}</span>
+                        <span class="stat-label">Avg Response</span>
+                    </div>
+                </div>
+                <div class="defense-stat">
+                    <div class="stat-icon info">
+                        <i class="bi bi-graph-up"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="accuracy-rate">{{ stats.accuracy or '99.7%' }}</span>
+                        <span class="stat-label">Accuracy Rate</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Attack Type Model Selector -->
+    <div class="row mb-4">
+        <div class="col-lg-4">
+            <div class="glass-card h-100">
+                <div class="card-header">
+                    <h3><i class="bi bi-search me-2"></i>Attack Analysis</h3>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">Select Attack Type</label>
+                        <select class="form-select" id="attack-type-select" onchange="analyzeAttack()">
+                            <option value="">Choose an attack type...</option>
+                            <option value="DDoS">DDoS Attack</option>
+                            <option value="Port Scan">Port Scan</option>
+                            <option value="Brute Force">Brute Force</option>
+                            <option value="SQL Injection">SQL Injection</option>
+                            <option value="XSS">Cross-Site Scripting (XSS)</option>
+                            <option value="Command Injection">Command Injection</option>
+                            <option value="Path Traversal">Path Traversal</option>
+                            <option value="Malware Communication">Malware/C2 Communication</option>
+                            <option value="Data Exfiltration">Data Exfiltration</option>
+                            <option value="Cryptomining">Cryptomining</option>
+                            <option value="Phishing">Phishing</option>
+                            <option value="Zero-day">Zero-day Exploit</option>
+                            <option value="APT">Advanced Persistent Threat</option>
+                            <option value="Lateral Movement">Lateral Movement</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Severity Level</label>
+                        <select class="form-select" id="severity-select" onchange="analyzeAttack()">
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                            <option value="critical">Critical</option>
+                        </select>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="speed-priority" onchange="analyzeAttack()">
+                        <label class="form-check-label" for="speed-priority">
+                            <i class="bi bi-lightning-charge text-warning"></i> Speed Priority
+                        </label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="privacy-required" onchange="analyzeAttack()">
+                        <label class="form-check-label" for="privacy-required">
+                            <i class="bi bi-shield-lock text-success"></i> Privacy Required (Local Only)
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-8">
+            <div class="glass-card h-100">
+                <div class="card-header">
+                    <h3><i class="bi bi-cpu me-2"></i>Recommended Model</h3>
+                </div>
+                <div class="card-body" id="model-recommendation">
+                    <div class="empty-state">
+                        <i class="bi bi-arrow-left-circle fs-1 text-muted"></i>
+                        <p class="mt-3">Select an attack type to see the recommended AI model</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- AI Models Grid -->
+    <div class="glass-card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h3><i class="bi bi-grid me-2"></i>Available AI Models</h3>
+            <div class="filter-tabs">
+                <button class="filter-tab active" data-filter="all">All</button>
+                <button class="filter-tab" data-filter="OpenAI">OpenAI</button>
+                <button class="filter-tab" data-filter="Anthropic">Anthropic</button>
+                <button class="filter-tab" data-filter="Google">Google</button>
+                <button class="filter-tab" data-filter="Local">Local</button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="models-grid" id="models-grid">
+                {% for model in models %}
+                <div class="model-card" data-provider="{{ model.provider }}">
+                    <div class="model-header" style="border-color: {{ model.color }}">
+                        <span class="model-icon">{{ model.icon }}</span>
+                        <div class="model-title">
+                            <h4>{{ model.name }}</h4>
+                            <span class="provider-badge" style="background: {{ model.color }}20; color: {{ model.color }}">
+                                {{ model.provider }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="model-body">
+                        <p class="model-desc">{{ model.description }}</p>
+                        <div class="model-ratings">
+                            <div class="rating-item">
+                                <span class="rating-label"><i class="bi bi-lightning"></i> Speed</span>
+                                <div class="rating-bar">
+                                    <div class="rating-fill speed" style="width: {{ model.speed_rating * 10 }}%"></div>
+                                </div>
+                                <span class="rating-value">{{ model.speed_rating }}/10</span>
+                            </div>
+                            <div class="rating-item">
+                                <span class="rating-label"><i class="bi bi-bullseye"></i> Accuracy</span>
+                                <div class="rating-bar">
+                                    <div class="rating-fill accuracy" style="width: {{ model.accuracy_rating * 10 }}%"></div>
+                                </div>
+                                <span class="rating-value">{{ model.accuracy_rating }}/10</span>
+                            </div>
+                            <div class="rating-item">
+                                <span class="rating-label"><i class="bi bi-cash"></i> Cost</span>
+                                <div class="rating-bar">
+                                    <div class="rating-fill cost" style="width: {{ model.cost_rating * 10 }}%"></div>
+                                </div>
+                                <span class="rating-value">{{ model.cost_rating }}/10</span>
+                            </div>
+                        </div>
+                        <div class="model-tags">
+                            {% for specialty in model.best_for[:3] %}
+                            <span class="specialty-tag">{{ specialty }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Model Comparison Table -->
+    <div class="glass-card">
+        <div class="card-header">
+            <h3><i class="bi bi-table me-2"></i>Model Comparison</h3>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table comparison-table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Model</th>
+                            <th>Provider</th>
+                            <th>Speed</th>
+                            <th>Accuracy</th>
+                            <th>Cost</th>
+                            <th>Context</th>
+                            <th>Best For</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for model in models %}
+                        <tr>
+                            <td>
+                                <span class="model-icon-sm">{{ model.icon }}</span>
+                                {{ model.name }}
+                            </td>
+                            <td>
+                                <span class="provider-dot" style="background: {{ model.color }}"></span>
+                                {{ model.provider }}
+                            </td>
+                            <td>
+                                <div class="mini-bar">
+                                    <div class="mini-fill speed" style="width: {{ model.speed_rating * 10 }}%"></div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="mini-bar">
+                                    <div class="mini-fill accuracy" style="width: {{ model.accuracy_rating * 10 }}%"></div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="mini-bar">
+                                    <div class="mini-fill cost" style="width: {{ model.cost_rating * 10 }}%"></div>
+                                </div>
+                            </td>
+                            <td>
+                                {% if model.context_window > 0 %}
+                                {{ (model.context_window / 1000)|round|int }}K
+                                {% else %}
+                                N/A
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="best-for-tag">{{ model.best_for[0] if model.best_for else 'General' }}</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Defense Status Card */
+.defense-status-card .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.live-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(16, 185, 129, 0.15);
+    color: var(--success);
+    padding: 0.35rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.live-badge .pulse {
+    width: 8px;
+    height: 8px;
+    background: var(--success);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.2); }
+}
+
+.defense-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+}
+
+.defense-stat {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+}
+
+.defense-stat .stat-icon {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    font-size: 1.5rem;
+}
+
+.defense-stat .stat-icon.primary { background: rgba(59, 130, 246, 0.15); color: var(--primary); }
+.defense-stat .stat-icon.success { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+.defense-stat .stat-icon.warning { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+.defense-stat .stat-icon.info { background: rgba(139, 92, 246, 0.15); color: #8b5cf6; }
+
+.defense-stat .stat-value {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.defense-stat .stat-label {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+/* Filter Tabs */
+.filter-tabs {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.filter-tab {
+    padding: 0.4rem 1rem;
+    border: 1px solid var(--border-color);
+    background: transparent;
+    color: var(--text-secondary);
+    border-radius: 20px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.filter-tab:hover,
+.filter-tab.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+}
+
+/* Models Grid */
+.models-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.model-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.model-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    border-color: var(--primary);
+}
+
+.model-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    border-left: 4px solid;
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.model-header .model-icon {
+    font-size: 2rem;
+}
+
+.model-title h4 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.provider-badge {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    margin-top: 0.25rem;
+}
+
+.model-body {
+    padding: 1rem;
+}
+
+.model-desc {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+    line-height: 1.5;
+}
+
+.model-ratings {
+    margin-bottom: 1rem;
+}
+
+.rating-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.rating-label {
+    width: 80px;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.rating-bar {
+    flex: 1;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.rating-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.5s ease;
+}
+
+.rating-fill.speed { background: linear-gradient(90deg, #f59e0b, #eab308); }
+.rating-fill.accuracy { background: linear-gradient(90deg, #10b981, #34d399); }
+.rating-fill.cost { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+
+.rating-value {
+    width: 40px;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    text-align: right;
+}
+
+.model-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.specialty-tag {
+    padding: 0.2rem 0.6rem;
+    background: rgba(59, 130, 246, 0.1);
+    color: var(--primary);
+    border-radius: 4px;
+    font-size: 0.7rem;
+}
+
+/* Comparison Table */
+.comparison-table {
+    color: var(--text-primary);
+}
+
+.comparison-table th {
+    background: rgba(255, 255, 255, 0.03);
+    padding: 1rem;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.comparison-table td {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
+}
+
+.model-icon-sm {
+    margin-right: 0.5rem;
+}
+
+.provider-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+}
+
+.mini-bar {
+    width: 80px;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.mini-fill {
+    height: 100%;
+    border-radius: 3px;
+}
+
+.mini-fill.speed { background: #f59e0b; }
+.mini-fill.accuracy { background: #10b981; }
+.mini-fill.cost { background: #8b5cf6; }
+
+.best-for-tag {
+    padding: 0.2rem 0.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+    font-size: 0.75rem;
+}
+
+/* Model Recommendation Display */
+.recommendation-display {
+    display: flex;
+    gap: 2rem;
+}
+
+.selected-model {
+    flex: 1;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    border: 2px solid var(--primary);
+}
+
+.selected-model-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.selected-model-icon {
+    font-size: 3rem;
+}
+
+.selected-model-info h3 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.selected-model-provider {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.reason-box {
+    flex: 1;
+}
+
+.reason-box h4 {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+}
+
+.reason-text {
+    background: rgba(59, 130, 246, 0.1);
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 3px solid var(--primary);
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+.strategy-box {
+    margin-top: 1rem;
+}
+
+.strategy-text {
+    background: rgba(16, 185, 129, 0.1);
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 3px solid var(--success);
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+.alternative-models {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.alternative-models h4 {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+}
+
+.alt-model-list {
+    display: flex;
+    gap: 1rem;
+}
+
+.alt-model {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+}
+
+.alt-model-role {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
+</style>
+
+<script>
+async function analyzeAttack() {
+    const attackType = document.getElementById('attack-type-select').value;
+    const severity = document.getElementById('severity-select').value;
+    const speedPriority = document.getElementById('speed-priority').checked;
+    const privacyRequired = document.getElementById('privacy-required').checked;
+    
+    if (!attackType) {
+        document.getElementById('model-recommendation').innerHTML = `
+            <div class="empty-state">
+                <i class="bi bi-arrow-left-circle fs-1 text-muted"></i>
+                <p class="mt-3">Select an attack type to see the recommended AI model</p>
+            </div>
+        `;
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/ai-models/select', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                attack_type: attackType,
+                severity: severity,
+                speed_priority: speedPriority,
+                privacy_required: privacyRequired
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            displayRecommendation(data);
+        }
+    } catch (error) {
+        console.error('Error analyzing attack:', error);
+    }
+}
+
+function displayRecommendation(data) {
+    const container = document.getElementById('model-recommendation');
+    const model = data.selected_model;
+    
+    container.innerHTML = `
+        <div class="recommendation-display">
+            <div class="selected-model">
+                <div class="selected-model-header">
+                    <span class="selected-model-icon">${model.icon}</span>
+                    <div class="selected-model-info">
+                        <h3>${model.name}</h3>
+                        <span class="selected-model-provider">${model.provider} • v${model.version}</span>
+                    </div>
+                </div>
+                <div class="model-ratings">
+                    <div class="rating-item">
+                        <span class="rating-label"><i class="bi bi-lightning"></i> Speed</span>
+                        <div class="rating-bar">
+                            <div class="rating-fill speed" style="width: ${model.speed_rating * 10}%"></div>
+                        </div>
+                        <span class="rating-value">${model.speed_rating}/10</span>
+                    </div>
+                    <div class="rating-item">
+                        <span class="rating-label"><i class="bi bi-bullseye"></i> Accuracy</span>
+                        <div class="rating-bar">
+                            <div class="rating-fill accuracy" style="width: ${model.accuracy_rating * 10}%"></div>
+                        </div>
+                        <span class="rating-value">${model.accuracy_rating}/10</span>
+                    </div>
+                </div>
+                <div class="model-tags">
+                    ${model.strengths.map(s => `<span class="specialty-tag">${s}</span>`).join('')}
+                </div>
+            </div>
+            <div class="reason-box">
+                <h4><i class="bi bi-lightbulb me-2"></i>Why This Model?</h4>
+                <div class="reason-text">${data.reason}</div>
+                <div class="strategy-box">
+                    <h4><i class="bi bi-shield-check me-2"></i>Defense Strategy</h4>
+                    <div class="strategy-text">${data.defense_strategy}</div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// Filter tabs functionality
+document.querySelectorAll('.filter-tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+        document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+        
+        const filter = this.dataset.filter;
+        document.querySelectorAll('.model-card').forEach(card => {
+            if (filter === 'all' || card.dataset.provider === filter) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    });
+});
+
+function refreshModelStats() {
+    // Animate stat updates
+    document.querySelectorAll('.defense-stat .stat-value').forEach(el => {
+        el.style.animation = 'pulse 0.5s';
+        setTimeout(() => el.style.animation = '', 500);
+    });
+}
+</script>
+{% endblock %}

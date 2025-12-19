@@ -1,0 +1,400 @@
+{% extends "base.html" %}
+
+{% block title %}Alert Details{% endblock %}
+
+{% block content %}
+<div class="alert-detail-page">
+    <div class="page-header">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('alerts.alert_list') }}">Alerts</a></li>
+                    <li class="breadcrumb-item active">Alert #{{ alert.id }}</li>
+                </ol>
+            </nav>
+            <h1 class="page-title">
+                <i class="bi bi-{{ alert.severity_icon }}"></i>
+                {{ alert.attack_type }}
+            </h1>
+        </div>
+        <div class="header-actions">
+            <span class="badge bg-{{ alert.severity_color }} severity-badge">
+                {{ alert.severity|upper }}
+            </span>
+            <span class="badge bg-{{ 'success' if alert.status == 'resolved' else 'warning' if alert.status == 'acknowledged' else 'secondary' }}">
+                {{ alert.status|title }}
+            </span>
+        </div>
+    </div>
+    
+    <!-- Alert Actions -->
+    <div class="alert-actions-bar">
+        {% if not alert.acknowledged %}
+        <form method="POST" action="{{ url_for('alerts.acknowledge', alert_id=alert.id) }}" class="d-inline">
+            <button class="btn btn-warning">
+                <i class="bi bi-check"></i> Acknowledge
+            </button>
+        </form>
+        {% endif %}
+        
+        {% if not alert.resolved %}
+        <form method="POST" action="{{ url_for('alerts.resolve', alert_id=alert.id) }}" class="d-inline">
+            <button class="btn btn-success">
+                <i class="bi bi-check-all"></i> Mark Resolved
+            </button>
+        </form>
+        {% endif %}
+        
+        <button class="btn btn-outline-primary" onclick="copyAlertJson()">
+            <i class="bi bi-clipboard"></i> Copy JSON
+        </button>
+        
+        <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+            <i class="bi bi-trash"></i> Delete
+        </button>
+    </div>
+    
+    <!-- Main Content Grid -->
+    <div class="detail-grid">
+        <!-- Overview Card -->
+        <div class="detail-card">
+            <div class="card-header">
+                <h3><i class="bi bi-info-circle"></i> Overview</h3>
+            </div>
+            <div class="card-body">
+                <div class="detail-row">
+                    <span class="label">Alert ID</span>
+                    <span class="value">#{{ alert.id }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="label">Timestamp</span>
+                    <span class="value">{{ alert.timestamp.strftime('%Y-%m-%d %H:%M:%S UTC') }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="label">Attack Type</span>
+                    <span class="value">{{ alert.attack_type }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="label">Confidence</span>
+                    <span class="value">
+                        <div class="confidence-bar">
+                            <div class="confidence-fill" style="width: {{ alert.confidence * 100 }}%"></div>
+                            <span>{{ (alert.confidence * 100)|round(1) }}%</span>
+                        </div>
+                    </span>
+                </div>
+                <div class="detail-row">
+                    <span class="label">Model</span>
+                    <span class="value"><code>{{ alert.model_version or 'Unknown' }}</code></span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Network Info Card -->
+        <div class="detail-card">
+            <div class="card-header">
+                <h3><i class="bi bi-diagram-3"></i> Network Information</h3>
+            </div>
+            <div class="card-body">
+                <div class="network-flow">
+                    <div class="endpoint source">
+                        <div class="endpoint-label">Source</div>
+                        <div class="endpoint-ip">{{ alert.source_ip }}</div>
+                        <div class="endpoint-port">Port {{ alert.source_port or 'N/A' }}</div>
+                    </div>
+                    <div class="flow-arrow">
+                        <i class="bi bi-arrow-right"></i>
+                    </div>
+                    <div class="endpoint destination">
+                        <div class="endpoint-label">Destination</div>
+                        <div class="endpoint-ip">{{ alert.destination_ip }}</div>
+                        <div class="endpoint-port">Port {{ alert.destination_port or 'N/A' }}</div>
+                    </div>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="label">Protocol</span>
+                    <span class="value"><code>{{ alert.protocol or 'TCP' }}</code></span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- SHAP Explanation Card -->
+        {% if alert.shap_values %}
+        <div class="detail-card wide">
+            <div class="card-header">
+                <h3><i class="bi bi-lightbulb"></i> AI Explanation (SHAP)</h3>
+                <span class="badge bg-info">Explainable AI</span>
+            </div>
+            <div class="card-body">
+                <p class="explanation-intro">
+                    These are the top features that contributed to this detection:
+                </p>
+                <div class="shap-features">
+                    {% for feature, value in alert.shap_values.items() %}
+                    <div class="shap-feature">
+                        <div class="feature-name">{{ feature }}</div>
+                        <div class="feature-bar {{ 'positive' if value > 0 else 'negative' }}">
+                            <div class="bar-fill" style="width: {{ (value|abs_value * 100)|clamp(0, 100) }}%"></div>
+                        </div>
+                        <div class="feature-value {{ 'positive' if value > 0 else 'negative' }}">
+                            {{ '+' if value > 0 else '' }}{{ (value * 100)|round(2) }}%
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Raw Data Card -->
+        <div class="detail-card wide">
+            <div class="card-header">
+                <h3><i class="bi bi-code-slash"></i> Raw Data</h3>
+                <button class="btn btn-sm btn-outline-secondary" onclick="toggleRawData()">
+                    <i class="bi bi-arrows-expand"></i> Expand
+                </button>
+            </div>
+            <div class="card-body">
+                <pre id="raw-data" class="collapsed"><code>{{ alert.to_dict()|tojson(indent=2) }}</code></pre>
+            </div>
+        </div>
+        
+        <!-- Related Alerts -->
+        <div class="detail-card wide">
+            <div class="card-header">
+                <h3><i class="bi bi-collection"></i> Related Alerts</h3>
+            </div>
+            <div class="card-body">
+                {% if related_alerts %}
+                <table class="table table-dark table-sm">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Type</th>
+                            <th>Time</th>
+                            <th>Severity</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ra in related_alerts %}
+                        <tr onclick="window.location='{{ url_for('alerts.alert_detail', alert_id=ra.id) }}'" style="cursor: pointer">
+                            <td>#{{ ra.id }}</td>
+                            <td>{{ ra.attack_type }}</td>
+                            <td>{{ ra.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td><span class="badge bg-{{ ra.severity_color }}">{{ ra.severity }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty-state small">
+                    <i class="bi bi-shield-check"></i>
+                    <p>No related alerts found</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Investigation Notes -->
+        <div class="detail-card wide">
+            <div class="card-header">
+                <h3><i class="bi bi-journal-text"></i> Investigation Notes</h3>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('alerts.add_note', alert_id=alert.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="form-group">
+                        <textarea name="note" class="form-control" rows="3" placeholder="Add investigation notes..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        <i class="bi bi-plus"></i> Add Note
+                    </button>
+                </form>
+                
+                {% if alert.notes %}
+                <div class="notes-list">
+                    {% for note in alert.notes %}
+                    <div class="note-item">
+                        <div class="note-header">
+                            <span class="note-author">{{ note.author }}</span>
+                            <span class="note-time">{{ note.timestamp.strftime('%Y-%m-%d %H:%M') }}</span>
+                        </div>
+                        <div class="note-content">{{ note.content }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content bg-dark">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete Alert</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this alert?</p>
+                <p class="text-danger">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="POST" action="{{ url_for('alerts.delete_alert', alert_id=alert.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const alertData = {{ alert.to_dict()|tojson }};
+    
+    function copyAlertJson() {
+        navigator.clipboard.writeText(JSON.stringify(alertData, null, 2))
+            .then(() => {
+                showToast('Alert JSON copied to clipboard');
+            });
+    }
+    
+    function toggleRawData() {
+        const pre = document.getElementById('raw-data');
+        pre.classList.toggle('collapsed');
+    }
+    
+    function showToast(message) {
+        // Simple toast notification
+        const toast = document.createElement('div');
+        toast.className = 'toast-notification';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+</script>
+
+<style>
+    .network-flow {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 2rem;
+        padding: 2rem;
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 12px;
+        margin-bottom: 1rem;
+    }
+    
+    .endpoint {
+        text-align: center;
+        padding: 1rem;
+    }
+    
+    .endpoint-label {
+        font-size: 0.75rem;
+        color: #666;
+        text-transform: uppercase;
+        margin-bottom: 0.5rem;
+    }
+    
+    .endpoint-ip {
+        font-size: 1.25rem;
+        font-family: monospace;
+        color: #fff;
+    }
+    
+    .endpoint-port {
+        font-size: 0.9rem;
+        color: #a0a0a0;
+    }
+    
+    .flow-arrow {
+        font-size: 2rem;
+        color: #dc3545;
+    }
+    
+    .confidence-bar {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .confidence-bar .confidence-fill {
+        height: 8px;
+        background: linear-gradient(90deg, #198754, #ffc107, #dc3545);
+        border-radius: 4px;
+        width: 100px;
+    }
+    
+    .shap-features {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .shap-feature {
+        display: grid;
+        grid-template-columns: 150px 1fr 80px;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .feature-bar {
+        height: 20px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    
+    .feature-bar.positive .bar-fill {
+        background: #198754;
+    }
+    
+    .feature-bar.negative .bar-fill {
+        background: #dc3545;
+    }
+    
+    .feature-value.positive {
+        color: #198754;
+    }
+    
+    .feature-value.negative {
+        color: #dc3545;
+    }
+    
+    #raw-data {
+        max-height: 300px;
+        overflow: auto;
+        background: rgba(0, 0, 0, 0.3);
+        padding: 1rem;
+        border-radius: 8px;
+    }
+    
+    #raw-data.collapsed {
+        max-height: 100px;
+    }
+    
+    .toast-notification {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        background: #198754;
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        animation: slideIn 0.3s ease;
+    }
+    
+    @keyframes slideIn {
+        from { transform: translateY(100px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+</style>
+{% endblock %}

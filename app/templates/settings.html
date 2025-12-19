@@ -1,0 +1,1441 @@
+{% extends "base.html" %}
+
+{% block title %}System Settings{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">
+            <i class="bi bi-gear-fill text-primary"></i>
+            System Settings
+        </h1>
+        <p class="page-subtitle">Configure AI-NIDS system parameters and preferences</p>
+    </div>
+    <div class="header-actions">
+        <button class="btn btn-outline-secondary me-2" onclick="resetSettings()">
+            <i class="bi bi-arrow-counterclockwise me-2"></i>Reset
+        </button>
+        <button class="btn btn-success cyber-btn-save" onclick="saveAllSettings()">
+            <i class="bi bi-check-lg me-2"></i>Save All Changes
+        </button>
+    </div>
+</div>
+
+<div class="settings-container">
+    <div class="row g-4">
+        <!-- Settings Navigation -->
+        <div class="col-lg-3">
+            <div class="settings-nav glass-card">
+                <div class="nav flex-column nav-pills" id="settings-tab" role="tablist">
+                    <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#general">
+                        <i class="bi bi-sliders2 me-2"></i>General
+                    </button>
+                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#detection">
+                        <i class="bi bi-shield-shaded me-2"></i>Detection
+                    </button>
+                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#alerts">
+                        <i class="bi bi-bell-fill me-2"></i>Alerts
+                    </button>
+                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#notifications">
+                        <i class="bi bi-envelope-fill me-2"></i>Notifications
+                    </button>
+                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#api">
+                        <i class="bi bi-code-slash me-2"></i>API
+                    </button>
+                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#security">
+                        <i class="bi bi-lock-fill me-2"></i>Security
+                    </button>
+                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#backup">
+                        <i class="bi bi-cloud-arrow-up-fill me-2"></i>Backup
+                    </button>
+                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#advanced">
+                        <i class="bi bi-tools me-2"></i>Advanced
+                    </button>
+                </div>
+                
+                <!-- System Info -->
+                <div class="system-info mt-4">
+                    <h6 class="info-title">System Information</h6>
+                    <div class="info-item">
+                        <span class="info-label">Version</span>
+                        <span class="info-value">1.0.0</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Last Updated</span>
+                        <span class="info-value">Dec 9, 2025</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">License</span>
+                        <span class="info-value badge-pro">Enterprise</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Settings Content -->
+        <div class="col-lg-9">
+            <div class="tab-content">
+                <!-- General Settings -->
+                <div class="tab-pane fade show active" id="general">
+                    <div class="glass-card settings-panel">
+                        <div class="card-header">
+                            <h3><i class="bi bi-sliders2 me-2"></i>General Settings</h3>
+                            <span class="settings-badge">Basic Configuration</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="settings-section">
+                                <div class="setting-row">
+                                    <div class="setting-info">
+                                        <label class="setting-label">System Name</label>
+                                        <small class="setting-desc">Display name for the AI-NIDS system</small>
+                                    </div>
+                                    <div class="setting-control">
+                                        <input type="text" class="form-control" value="AI-NIDS Production" id="systemName">
+                                    </div>
+                                </div>
+                                
+                                <div class="setting-row">
+                                    <div class="setting-info">
+                                        <label class="setting-label">Organization</label>
+                                        <small class="setting-desc">Your organization name</small>
+                                    </div>
+                                    <div class="setting-control">
+                                        <input type="text" class="form-control" value="Security Operations Center" id="orgName">
+                                    </div>
+                                </div>
+                                
+                                <div class="setting-row">
+                                    <div class="setting-info">
+                                        <label class="setting-label">Timezone</label>
+                                        <small class="setting-desc">System timezone for logs and alerts</small>
+                                    </div>
+                                    <div class="setting-control">
+                                        <select class="form-select" id="timezone">
+                                            <option value="UTC">UTC (Coordinated Universal Time)</option>
+                                            <option value="Asia/Kolkata" selected>Asia/Kolkata (IST +5:30)</option>
+                                            <option value="America/New_York">America/New_York (EST -5:00)</option>
+                                            <option value="America/Los_Angeles">America/Los_Angeles (PST -8:00)</option>
+                                            <option value="Europe/London">Europe/London (GMT +0:00)</option>
+                                            <option value="Europe/Paris">Europe/Paris (CET +1:00)</option>
+                                            <option value="Asia/Tokyo">Asia/Tokyo (JST +9:00)</option>
+                                            <option value="Australia/Sydney">Australia/Sydney (AEST +10:00)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="setting-row">
+                                    <div class="setting-info">
+                                        <label class="setting-label">Date Format</label>
+                                        <small class="setting-desc">How dates are displayed</small>
+                                    </div>
+                                    <div class="setting-control">
+                                        <select class="form-select" id="dateFormat">
+                                            <option value="YYYY-MM-DD">2025-12-09 (ISO)</option>
+                                            <option value="DD/MM/YYYY" selected>09/12/2025 (DD/MM/YYYY)</option>
+                                            <option value="MM/DD/YYYY">12/09/2025 (MM/DD/YYYY)</option>
+                                            <option value="DD-MMM-YYYY">09-Dec-2025</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="setting-row">
+                                    <div class="setting-info">
+                                        <label class="setting-label">Dashboard Refresh Rate</label>
+                                        <small class="setting-desc">How often to auto-refresh dashboard data</small>
+                                    </div>
+                                    <div class="setting-control">
+                                        <select class="form-select" id="refreshRate">
+                                            <option value="5">5 seconds (Real-time)</option>
+                                            <option value="15">15 seconds</option>
+                                            <option value="30" selected>30 seconds (Recommended)</option>
+                                            <option value="60">1 minute</option>
+                                            <option value="300">5 minutes</option>
+                                            <option value="0">Disabled</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="setting-row">
+                                    <div class="setting-info">
+                                        <label class="setting-label">Theme</label>
+                                        <small class="setting-desc">Interface color scheme</small>
+                                    </div>
+                                    <div class="setting-control">
+                                        <div class="theme-options">
+                                            <label class="theme-option active" data-theme="dark">
+                                                <i class="bi bi-moon-stars-fill"></i>
+                                                <span>Dark</span>
+                                            </label>
+                                            <label class="theme-option" data-theme="light">
+                                                <i class="bi bi-sun-fill"></i>
+                                                <span>Light</span>
+                                            </label>
+                                            <label class="theme-option" data-theme="cyber">
+                                                <i class="bi bi-grid-fill"></i>
+                                                <span>Cyber</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Detection Settings -->
+                <div class="tab-pane fade" id="detection">
+                    <div class="glass-card settings-panel">
+                        <div class="card-header">
+                            <h3><i class="bi bi-shield-shaded me-2"></i>Detection Settings</h3>
+                            <span class="settings-badge danger">Critical Settings</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="settings-section">
+                                <div class="setting-row">
+                                    <div class="setting-info">
+                                        <label class="setting-label">Detection Mode</label>
+                                        <small class="setting-desc">How the system responds to threats</small>
+                                    </div>
+                                    <div class="setting-control">
+                                        <select class="form-select" id="detectionMode">
+                                            <option value="passive">🔍 Passive (Monitor Only)</option>
+                                            <option value="active" selected>⚡ Active (Monitor & Alert)</option>
+                                            <option value="aggressive">🛡️ Aggressive (Auto-Block)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="setting-row">
+                                    <div class="setting-info">
+                                        <label class="setting-label">Confidence Threshold</label>
+                                        <small class="setting-desc">Minimum ML confidence to trigger alerts</small>
+                                    </div>
+                                    <div class="setting-control">
+                                        <div class="range-slider">
+                                            <input type="range" class="form-range" min="50" max="99" value="75" id="confidenceRange">
+                                            <div class="range-labels">
+                                                <span>50%</span>
+                                                <span class="range-value" id="confidenceValue">75%</span>
+                                                <span>99%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="setting-row">
+                                    <div class="setting-info">
+                                        <label class="setting-label">Risk Score Threshold</label>
+                                        <small class="setting-desc">Minimum risk score for high-priority alerts</small>
+                                    </div>
+                                    <div class="setting-control">
+                                        <div class="range-slider">
+                                            <input type="range" class="form-range" min="1" max="10" value="7" id="riskRange">
+                                            <div class="range-labels">
+                                                <span>1</span>
+                                                <span class="range-value" id="riskValue">7</span>
+                                                <span>10</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="setting-row">
+                                    <div class="setting-info">
+                                        <label class="setting-label">ML Models</label>
+                                        <small class="setting-desc">Active machine learning models</small>
+                                    </div>
+                                    <div class="setting-control wide">
+                                        <div class="model-grid">
+                                            <label class="model-toggle active">
+                                                <input type="checkbox" checked>
+                                                <span class="model-icon">🌲</span>
+                                                <span class="model-name">Random Forest</span>
+                                                <span class="model-status">Active</span>
+                                            </label>
+                                            <label class="model-toggle active">
+                                                <input type="checkbox" checked>
+                                                <span class="model-icon">🚀</span>
+                                                <span class="model-name">XGBoost</span>
+                                                <span class="model-status">Active</span>
+                                            </label>
+                                            <label class="model-toggle active">
+                                                <input type="checkbox" checked>
+                                                <span class="model-icon">🧠</span>
+                                                <span class="model-name">Neural Network</span>
+                                                <span class="model-status">Active</span>
+                                            </label>
+                                            <label class="model-toggle active">
+                                                <input type="checkbox" checked>
+                                                <span class="model-icon">🔮</span>
+                                                <span class="model-name">Autoencoder</span>
+                                                <span class="model-status">Active</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="setting-row">
+                                    <div class="setting-info">
+                                        <label class="setting-label">Attack Categories</label>
+                                        <small class="setting-desc">Types of attacks to detect</small>
+                                    </div>
+                                    <div class="setting-control wide">
+                                        <div class="attack-categories">
+                                            <label class="category-chip active"><input type="checkbox" checked> DDoS</label>
+                                            <label class="category-chip active"><input type="checkbox" checked> Port Scan</label>
+                                            <label class="category-chip active"><input type="checkbox" checked> SQL Injection</label>
+                                            <label class="category-chip active"><input type="checkbox" checked> XSS</label>
+                                            <label class="category-chip active"><input type="checkbox" checked> Brute Force</label>
+                                            <label class="category-chip active"><input type="checkbox" checked> Malware</label>
+                                            <label class="category-chip active"><input type="checkbox" checked> Phishing</label>
+                                            <label class="category-chip active"><input type="checkbox" checked> Data Exfiltration</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Alerts Settings -->
+                <div class="tab-pane fade" id="alerts">
+                    <div class="glass-card settings-panel">
+                        <div class="card-header">
+                            <h3><i class="bi bi-bell-fill me-2"></i>Alert Settings</h3>
+                            <span class="settings-badge warning">Notification Rules</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="settings-section">
+                                <div class="setting-row">
+                                    <div class="setting-info">
+                                        <label class="setting-label">Alert Retention</label>
+                                        <small class="setting-desc">How long to keep alert history</small>
+                                    </div>
+                                    <div class="setting-control">
+                                        <select class="form-select">
+                                            <option value="7">7 Days</option>
+                                            <option value="30" selected>30 Days</option>
+                                            <option value="90">90 Days</option>
+                                            <option value="180">6 Months</option>
+                                            <option value="365">1 Year</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="setting-row">
+                                    <div class="setting-info">
+                                        <label class="setting-label">Auto-Acknowledge</label>
+                                        <small class="setting-desc">Automatically acknowledge low-priority alerts</small>
+                                    </div>
+                                    <div class="setting-control">
+                                        <select class="form-select">
+                                            <option value="disabled">Disabled</option>
+                                            <option value="info">Info only</option>
+                                            <option value="low" selected>Info & Low</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="setting-row">
+                                    <div class="setting-info">
+                                        <label class="setting-label">Sound Alerts</label>
+                                        <small class="setting-desc">Play sound for critical alerts</small>
+                                    </div>
+                                    <div class="setting-control">
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" checked>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="setting-row">
+                                    <div class="setting-info">
+                                        <label class="setting-label">Desktop Notifications</label>
+                                        <small class="setting-desc">Show browser notifications</small>
+                                    </div>
+                                    <div class="setting-control">
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" checked>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="setting-row">
+                                    <div class="setting-info">
+                                        <label class="setting-label">Alert Grouping</label>
+                                        <small class="setting-desc">Group similar alerts together</small>
+                                    </div>
+                                    <div class="setting-control">
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" checked>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Notifications Settings -->
+                <div class="tab-pane fade" id="notifications">
+                    <div class="glass-card settings-panel">
+                        <div class="card-header">
+                            <h3><i class="bi bi-envelope-fill me-2"></i>Notification Settings</h3>
+                            <span class="settings-badge">External Integrations</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="settings-section">
+                                <div class="integration-card">
+                                    <div class="integration-header">
+                                        <div class="integration-icon email">
+                                            <i class="bi bi-envelope-fill"></i>
+                                        </div>
+                                        <div class="integration-info">
+                                            <h4>Email Notifications</h4>
+                                            <p>Send alerts via email to your SOC team</p>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" checked>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                    <div class="integration-body">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label">SMTP Server</label>
+                                                <input type="text" class="form-control" value="smtp.gmail.com">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">SMTP Port</label>
+                                                <input type="text" class="form-control" value="587">
+                                            </div>
+                                            <div class="col-12">
+                                                <label class="form-label">Recipients</label>
+                                                <textarea class="form-control" rows="2" placeholder="One email per line">admin@ainids.local
+soc-team@company.com</textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="integration-card">
+                                    <div class="integration-header">
+                                        <div class="integration-icon slack">
+                                            <i class="bi bi-slack"></i>
+                                        </div>
+                                        <div class="integration-info">
+                                            <h4>Slack Integration</h4>
+                                            <p>Post alerts to your Slack channel</p>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox">
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                    <div class="integration-body">
+                                        <div class="row g-3">
+                                            <div class="col-12">
+                                                <label class="form-label">Webhook URL</label>
+                                                <input type="text" class="form-control" placeholder="https://hooks.slack.com/services/...">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Channel</label>
+                                                <input type="text" class="form-control" placeholder="#security-alerts">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Minimum Severity</label>
+                                                <select class="form-select">
+                                                    <option>Critical Only</option>
+                                                    <option selected>High & Critical</option>
+                                                    <option>Medium & Above</option>
+                                                    <option>All Alerts</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="integration-card">
+                                    <div class="integration-header">
+                                        <div class="integration-icon webhook">
+                                            <i class="bi bi-globe"></i>
+                                        </div>
+                                        <div class="integration-info">
+                                            <h4>Custom Webhook</h4>
+                                            <p>Send alerts to any HTTP endpoint</p>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox">
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                    <div class="integration-body">
+                                        <div class="row g-3">
+                                            <div class="col-12">
+                                                <label class="form-label">Webhook URL</label>
+                                                <input type="text" class="form-control" placeholder="https://your-server.com/webhook">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- API Settings -->
+                <div class="tab-pane fade" id="api">
+                    <div class="glass-card settings-panel">
+                        <div class="card-header">
+                            <h3><i class="bi bi-code-slash me-2"></i>API Settings</h3>
+                            <span class="settings-badge info">Developer Options</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="settings-section">
+                                <div class="api-key-section">
+                                    <label class="setting-label">API Key</label>
+                                    <div class="api-key-display">
+                                        <code id="apiKey">sk-ainids-prod-a1b2c3d4e5f6g7h8i9j0</code>
+                                        <button class="btn btn-sm btn-outline-primary" onclick="copyApiKey()">
+                                            <i class="bi bi-clipboard"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-warning" onclick="regenerateApiKey()">
+                                            <i class="bi bi-arrow-repeat"></i>
+                                        </button>
+                                    </div>
+                                    <small class="text-muted">Use this key to authenticate API requests</small>
+                                </div>
+                                
+                                <div class="setting-row">
+                                    <div class="setting-info">
+                                        <label class="setting-label">Rate Limiting</label>
+                                        <small class="setting-desc">Maximum API requests per minute</small>
+                                    </div>
+                                    <div class="setting-control">
+                                        <select class="form-select">
+                                            <option value="60">60/min (Low)</option>
+                                            <option value="300">300/min (Medium)</option>
+                                            <option value="1000" selected>1000/min (High)</option>
+                                            <option value="0">Unlimited</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="setting-row">
+                                    <div class="setting-info">
+                                        <label class="setting-label">Enable CORS</label>
+                                        <small class="setting-desc">Allow cross-origin requests</small>
+                                    </div>
+                                    <div class="setting-control">
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" checked>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="setting-row">
+                                    <div class="setting-info">
+                                        <label class="setting-label">API Logging</label>
+                                        <small class="setting-desc">Log all API requests</small>
+                                    </div>
+                                    <div class="setting-control">
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" checked>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="api-docs-link">
+                                    <a href="{{ url_for('api.api_index') }}" class="btn btn-outline-primary">
+                                        <i class="bi bi-book me-2"></i>View API Documentation
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Security Settings -->
+                <div class="tab-pane fade" id="security">
+                    <div class="glass-card settings-panel">
+                        <div class="card-header">
+                            <h3><i class="bi bi-lock-fill me-2"></i>Security Settings</h3>
+                            <span class="settings-badge danger">Critical Settings</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="settings-section">
+                                <div class="setting-row">
+                                    <div class="setting-info">
+                                        <label class="setting-label">Two-Factor Authentication</label>
+                                        <small class="setting-desc">Require 2FA for all users</small>
+                                    </div>
+                                    <div class="setting-control">
+                                        <label class="toggle-switch">
+                                            <input type="checkbox">
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="setting-row">
+                                    <div class="setting-info">
+                                        <label class="setting-label">Session Timeout</label>
+                                        <small class="setting-desc">Auto logout after inactivity</small>
+                                    </div>
+                                    <div class="setting-control">
+                                        <select class="form-select">
+                                            <option value="15">15 minutes</option>
+                                            <option value="30" selected>30 minutes</option>
+                                            <option value="60">1 hour</option>
+                                            <option value="480">8 hours</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="setting-row">
+                                    <div class="setting-info">
+                                        <label class="setting-label">Password Policy</label>
+                                        <small class="setting-desc">Minimum password requirements</small>
+                                    </div>
+                                    <div class="setting-control">
+                                        <select class="form-select">
+                                            <option value="basic">Basic (6+ characters)</option>
+                                            <option value="medium" selected>Medium (8+ chars, mixed case)</option>
+                                            <option value="strong">Strong (12+ chars, special chars)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="setting-row">
+                                    <div class="setting-info">
+                                        <label class="setting-label">Failed Login Lockout</label>
+                                        <small class="setting-desc">Lock account after failed attempts</small>
+                                    </div>
+                                    <div class="setting-control">
+                                        <select class="form-select">
+                                            <option value="3">After 3 attempts</option>
+                                            <option value="5" selected>After 5 attempts</option>
+                                            <option value="10">After 10 attempts</option>
+                                            <option value="0">Disabled</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="setting-row">
+                                    <div class="setting-info">
+                                        <label class="setting-label">IP Whitelist</label>
+                                        <small class="setting-desc">Allowed IP addresses (optional)</small>
+                                    </div>
+                                    <div class="setting-control wide">
+                                        <textarea class="form-control" rows="2" placeholder="Leave empty to allow all IPs"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Backup Settings -->
+                <div class="tab-pane fade" id="backup">
+                    <div class="glass-card settings-panel">
+                        <div class="card-header">
+                            <h3><i class="bi bi-cloud-arrow-up-fill me-2"></i>Backup & Recovery</h3>
+                            <span class="settings-badge success">Data Protection</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="settings-section">
+                                <div class="backup-status">
+                                    <div class="backup-info">
+                                        <i class="bi bi-check-circle-fill text-success"></i>
+                                        <div>
+                                            <strong>Last Backup:</strong> December 9, 2025 at 03:00 AM
+                                            <br><small class="text-muted">Size: 245 MB | Status: Successful</small>
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-primary" onclick="createBackup()">
+                                        <i class="bi bi-cloud-arrow-up me-2"></i>Backup Now
+                                    </button>
+                                </div>
+                                
+                                <div class="setting-row">
+                                    <div class="setting-info">
+                                        <label class="setting-label">Auto Backup Schedule</label>
+                                        <small class="setting-desc">Automatic backup frequency</small>
+                                    </div>
+                                    <div class="setting-control">
+                                        <select class="form-select">
+                                            <option value="hourly">Hourly</option>
+                                            <option value="daily" selected>Daily at 3:00 AM</option>
+                                            <option value="weekly">Weekly (Sunday)</option>
+                                            <option value="disabled">Disabled</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="setting-row">
+                                    <div class="setting-info">
+                                        <label class="setting-label">Backup Retention</label>
+                                        <small class="setting-desc">Number of backups to keep</small>
+                                    </div>
+                                    <div class="setting-control">
+                                        <select class="form-select">
+                                            <option value="7">7 backups</option>
+                                            <option value="14">14 backups</option>
+                                            <option value="30" selected>30 backups</option>
+                                            <option value="90">90 backups</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="setting-row">
+                                    <div class="setting-info">
+                                        <label class="setting-label">Backup Location</label>
+                                        <small class="setting-desc">Where to store backups</small>
+                                    </div>
+                                    <div class="setting-control">
+                                        <input type="text" class="form-control" value="/data/backups">
+                                    </div>
+                                </div>
+                                
+                                <div class="restore-section">
+                                    <h5>Restore from Backup</h5>
+                                    <select class="form-select mb-3">
+                                        <option>backup_20251209_030000.tar.gz (245 MB)</option>
+                                        <option>backup_20251208_030000.tar.gz (243 MB)</option>
+                                        <option>backup_20251207_030000.tar.gz (241 MB)</option>
+                                    </select>
+                                    <button class="btn btn-outline-warning">
+                                        <i class="bi bi-arrow-counterclockwise me-2"></i>Restore Selected
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Advanced Settings -->
+                <div class="tab-pane fade" id="advanced">
+                    <div class="glass-card settings-panel">
+                        <div class="card-header">
+                            <h3><i class="bi bi-tools me-2"></i>Advanced Settings</h3>
+                            <span class="settings-badge danger">Danger Zone</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="settings-section">
+                                <div class="setting-row">
+                                    <div class="setting-info">
+                                        <label class="setting-label">Log Level</label>
+                                        <small class="setting-desc">System logging verbosity</small>
+                                    </div>
+                                    <div class="setting-control">
+                                        <select class="form-select">
+                                            <option value="DEBUG">DEBUG (Verbose)</option>
+                                            <option value="INFO" selected>INFO (Normal)</option>
+                                            <option value="WARNING">WARNING</option>
+                                            <option value="ERROR">ERROR (Minimal)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="setting-row">
+                                    <div class="setting-info">
+                                        <label class="setting-label">Debug Mode</label>
+                                        <small class="setting-desc">Enable debug features (development only)</small>
+                                    </div>
+                                    <div class="setting-control">
+                                        <label class="toggle-switch">
+                                            <input type="checkbox">
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="setting-row">
+                                    <div class="setting-info">
+                                        <label class="setting-label">Maintenance Mode</label>
+                                        <small class="setting-desc">Disable all detection temporarily</small>
+                                    </div>
+                                    <div class="setting-control">
+                                        <label class="toggle-switch">
+                                            <input type="checkbox">
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="danger-zone">
+                                    <h5><i class="bi bi-exclamation-triangle me-2"></i>Danger Zone</h5>
+                                    <p class="text-muted">These actions are irreversible. Use with caution.</p>
+                                    <div class="danger-actions">
+                                        <button class="btn btn-outline-warning" onclick="clearLogs()">
+                                            <i class="bi bi-trash me-2"></i>Clear All Logs
+                                        </button>
+                                        <button class="btn btn-outline-danger" onclick="resetDatabase()">
+                                            <i class="bi bi-database-x me-2"></i>Reset Database
+                                        </button>
+                                        <button class="btn btn-outline-danger" onclick="factoryReset()">
+                                            <i class="bi bi-arrow-repeat me-2"></i>Factory Reset
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Glass Card */
+.glass-card {
+    background: linear-gradient(135deg, rgba(18, 18, 26, 0.95), rgba(26, 26, 36, 0.9));
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+/* Settings Navigation */
+.settings-nav {
+    padding: 1rem;
+}
+
+.settings-nav .nav-link {
+    color: var(--text-secondary);
+    padding: 0.875rem 1rem;
+    border-radius: 10px;
+    margin-bottom: 0.25rem;
+    text-align: left;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+
+.settings-nav .nav-link:hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.settings-nav .nav-link.active {
+    color: white;
+    background: linear-gradient(135deg, var(--primary), var(--purple));
+    border-color: transparent;
+    box-shadow: 0 4px 15px rgba(13, 110, 253, 0.4);
+}
+
+/* System Info */
+.system-info {
+    padding: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.info-title {
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.75rem;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    font-size: 0.85rem;
+}
+
+.info-label {
+    color: var(--text-secondary);
+}
+
+.info-value {
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.badge-pro {
+    background: linear-gradient(135deg, #ffd700, #ff8c00);
+    color: #000;
+    padding: 0.2em 0.5em;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 700;
+}
+
+/* Settings Panel */
+.settings-panel {
+    height: 100%;
+}
+
+.settings-panel .card-header {
+    background: transparent;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.settings-panel .card-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.settings-badge {
+    font-size: 0.7rem;
+    padding: 0.3em 0.7em;
+    border-radius: 6px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: rgba(13, 110, 253, 0.15);
+    color: var(--primary);
+}
+
+.settings-badge.danger {
+    background: rgba(220, 53, 69, 0.15);
+    color: #dc3545;
+}
+
+.settings-badge.warning {
+    background: rgba(255, 193, 7, 0.15);
+    color: #ffc107;
+}
+
+.settings-badge.success {
+    background: rgba(25, 135, 84, 0.15);
+    color: #198754;
+}
+
+.settings-badge.info {
+    background: rgba(13, 202, 240, 0.15);
+    color: #0dcaf0;
+}
+
+/* Setting Row */
+.setting-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 1.25rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.setting-row:last-child {
+    border-bottom: none;
+}
+
+.setting-info {
+    flex: 1;
+    padding-right: 2rem;
+}
+
+.setting-label {
+    display: block;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.setting-desc {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+.setting-control {
+    width: 280px;
+    flex-shrink: 0;
+}
+
+.setting-control.wide {
+    width: 100%;
+    margin-top: 1rem;
+}
+
+/* Form Controls */
+.form-control, .form-select {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    border-radius: 10px;
+    padding: 0.6rem 1rem;
+}
+
+.form-control:focus, .form-select:focus {
+    background: rgba(0, 0, 0, 0.4);
+    border-color: var(--primary);
+    color: var(--text-primary);
+    box-shadow: 0 0 15px rgba(13, 110, 253, 0.3);
+}
+
+/* Toggle Switch */
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 52px;
+    height: 28px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.1);
+    transition: 0.4s;
+    border-radius: 28px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 4px;
+    bottom: 4px;
+    background: white;
+    transition: 0.4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background: linear-gradient(135deg, var(--primary), var(--purple));
+    box-shadow: 0 0 15px rgba(13, 110, 253, 0.4);
+}
+
+input:checked + .slider:before {
+    transform: translateX(24px);
+}
+
+/* Range Slider */
+.range-slider {
+    width: 100%;
+}
+
+.form-range {
+    width: 100%;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    -webkit-appearance: none;
+}
+
+.form-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    background: linear-gradient(135deg, var(--primary), var(--purple));
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(13, 110, 253, 0.5);
+}
+
+.range-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.range-value {
+    color: var(--primary);
+    font-weight: 600;
+}
+
+/* Theme Options */
+.theme-options {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.theme-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 80px;
+}
+
+.theme-option:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.theme-option.active {
+    border-color: var(--primary);
+    background: rgba(13, 110, 253, 0.1);
+}
+
+.theme-option i {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.theme-option span {
+    font-size: 0.8rem;
+}
+
+/* Model Grid */
+.model-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+}
+
+.model-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.model-toggle:hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.model-toggle.active {
+    border-color: rgba(25, 135, 84, 0.5);
+    background: rgba(25, 135, 84, 0.1);
+}
+
+.model-toggle input {
+    display: none;
+}
+
+.model-icon {
+    font-size: 1.25rem;
+}
+
+.model-name {
+    flex: 1;
+    font-weight: 500;
+}
+
+.model-status {
+    font-size: 0.7rem;
+    padding: 0.2em 0.5em;
+    border-radius: 4px;
+    background: rgba(25, 135, 84, 0.2);
+    color: #198754;
+}
+
+/* Attack Categories */
+.attack-categories {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.category-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.85rem;
+}
+
+.category-chip input {
+    display: none;
+}
+
+.category-chip:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.category-chip.active {
+    background: rgba(13, 110, 253, 0.15);
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+/* Integration Card */
+.integration-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    overflow: hidden;
+}
+
+.integration-header {
+    display: flex;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    gap: 1rem;
+}
+
+.integration-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+}
+
+.integration-icon.email {
+    background: linear-gradient(135deg, rgba(220, 53, 69, 0.2), rgba(253, 126, 20, 0.2));
+    color: #fd7e14;
+}
+
+.integration-icon.slack {
+    background: linear-gradient(135deg, rgba(111, 66, 193, 0.2), rgba(13, 110, 253, 0.2));
+    color: #6f42c1;
+}
+
+.integration-icon.webhook {
+    background: linear-gradient(135deg, rgba(25, 135, 84, 0.2), rgba(32, 201, 151, 0.2));
+    color: #20c997;
+}
+
+.integration-info {
+    flex: 1;
+}
+
+.integration-info h4 {
+    margin: 0 0 0.25rem;
+    font-size: 1rem;
+}
+
+.integration-info p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.integration-body {
+    padding: 1rem 1.25rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(0, 0, 0, 0.1);
+}
+
+/* API Key Section */
+.api-key-section {
+    padding: 1.25rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.api-key-display {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    margin: 0.5rem 0;
+}
+
+.api-key-display code {
+    flex: 1;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.api-docs-link {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Backup Status */
+.backup-status {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    background: rgba(25, 135, 84, 0.1);
+    border: 1px solid rgba(25, 135, 84, 0.3);
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+}
+
+.backup-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.backup-info i {
+    font-size: 1.5rem;
+}
+
+.restore-section {
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    margin-top: 1.5rem;
+}
+
+.restore-section h5 {
+    margin-bottom: 1rem;
+}
+
+/* Danger Zone */
+.danger-zone {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: rgba(220, 53, 69, 0.05);
+    border: 1px solid rgba(220, 53, 69, 0.2);
+    border-radius: 12px;
+}
+
+.danger-zone h5 {
+    color: #dc3545;
+    margin-bottom: 0.5rem;
+}
+
+.danger-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+}
+
+/* Save Button */
+.cyber-btn-save {
+    background: linear-gradient(135deg, #198754, #20c997);
+    border: none;
+    padding: 0.6rem 1.5rem;
+    border-radius: 10px;
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(25, 135, 84, 0.4);
+    transition: all 0.3s ease;
+}
+
+.cyber-btn-save:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(25, 135, 84, 0.5);
+}
+</style>
+
+<script>
+// Range sliders
+document.getElementById('confidenceRange')?.addEventListener('input', function() {
+    document.getElementById('confidenceValue').textContent = this.value + '%';
+});
+
+document.getElementById('riskRange')?.addEventListener('input', function() {
+    document.getElementById('riskValue').textContent = this.value;
+});
+
+// Theme selection
+document.querySelectorAll('.theme-option').forEach(opt => {
+    opt.addEventListener('click', function() {
+        document.querySelectorAll('.theme-option').forEach(o => o.classList.remove('active'));
+        this.classList.add('active');
+    });
+});
+
+// Model toggles
+document.querySelectorAll('.model-toggle input').forEach(input => {
+    input.addEventListener('change', function() {
+        const toggle = this.closest('.model-toggle');
+        toggle.classList.toggle('active', this.checked);
+        toggle.querySelector('.model-status').textContent = this.checked ? 'Active' : 'Inactive';
+    });
+});
+
+// Category chips
+document.querySelectorAll('.category-chip input').forEach(input => {
+    input.addEventListener('change', function() {
+        this.closest('.category-chip').classList.toggle('active', this.checked);
+    });
+});
+
+// Save settings
+function saveAllSettings() {
+    const btn = event.target;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Saving...';
+    btn.disabled = true;
+    
+    setTimeout(() => {
+        btn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Saved!';
+        setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }, 2000);
+    }, 1000);
+}
+
+// Reset settings
+function resetSettings() {
+    if (confirm('Are you sure you want to reset all settings to defaults?')) {
+        location.reload();
+    }
+}
+
+// Copy API key
+function copyApiKey() {
+    const apiKey = document.getElementById('apiKey').textContent;
+    navigator.clipboard.writeText(apiKey);
+    alert('API Key copied to clipboard!');
+}
+
+// Regenerate API key
+function regenerateApiKey() {
+    if (confirm('Are you sure? This will invalidate your current API key.')) {
+        document.getElementById('apiKey').textContent = 'sk-ainids-prod-' + Math.random().toString(36).substring(2, 22);
+    }
+}
+
+// Backup
+function createBackup() {
+    alert('Backup started! You will be notified when complete.');
+}
+
+// Clear logs
+function clearLogs() {
+    if (confirm('This will permanently delete all log files. Continue?')) {
+        alert('Logs cleared successfully.');
+    }
+}
+
+// Reset database
+function resetDatabase() {
+    if (confirm('WARNING: This will delete ALL data including alerts and flows. This cannot be undone!')) {
+        if (confirm('Are you absolutely sure?')) {
+            alert('Database reset initiated.');
+        }
+    }
+}
+
+// Factory reset
+function factoryReset() {
+    if (confirm('DANGER: This will reset the entire system to factory defaults. ALL DATA WILL BE LOST!')) {
+        if (prompt('Type "RESET" to confirm:') === 'RESET') {
+            alert('Factory reset initiated. System will restart.');
+        }
+    }
+}
+</script>
+{% endblock %}

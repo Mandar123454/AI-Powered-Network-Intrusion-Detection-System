@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+
+{% block title %}Traffic Analytics{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">
+            <i class="bi bi-diagram-3 text-primary"></i>
+            Traffic Analytics
+        </h1>
+        <p class="page-subtitle">Real-time network traffic analysis and flow visualization</p>
+    </div>
+    <div class="header-actions">
+        <select class="form-select time-filter" id="time-range">
+            <option value="1" {% if days == 1 %}selected{% endif %}>Last 24 Hours</option>
+            <option value="7" {% if days == 7 %}selected{% endif %}>Last 7 Days</option>
+            <option value="30" {% if days == 30 %}selected{% endif %}>Last 30 Days</option>
+        </select>
+        <a href="{{ url_for('analytics.export_data', data_type='flows', days=days) }}" class="btn btn-export">
+            <i class="bi bi-download"></i>Export Data
+        </a>
+        <a href="{{ url_for('analytics.export_pdf_report', days=days) }}" class="btn btn-report">
+            <i class="bi bi-file-earmark-pdf"></i>Generate Report
+        </a>
+    </div>
+</div>
+
+<!-- Traffic Stats -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon blue">
+            <i class="bi bi-arrow-left-right"></i>
+        </div>
+        <div class="stat-content">
+            <h3>{{ traffic_data.total_flows | default(0) | int }}</h3>
+            <p>Total Flows</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon green">
+            <i class="bi bi-cloud-download"></i>
+        </div>
+        <div class="stat-content">
+            <h3>{{ "%.2f" | format(traffic_data.total_bytes_in | default(0) / 1073741824) }} GB</h3>
+            <p>Inbound Traffic</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon orange">
+            <i class="bi bi-cloud-upload"></i>
+        </div>
+        <div class="stat-content">
+            <h3>{{ "%.2f" | format(traffic_data.total_bytes_out | default(0) / 1073741824) }} GB</h3>
+            <p>Outbound Traffic</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon purple">
+            <i class="bi bi-pc-display"></i>
+        </div>
+        <div class="stat-content">
+            <h3>{{ traffic_data.unique_ips | default(0) }}</h3>
+            <p>Unique IPs</p>
+        </div>
+    </div>
+</div>
+
+<!-- Charts -->
+<div class="charts-grid">
+    <div class="chart-card">
+        <div class="card-header">
+            <h3><i class="bi bi-graph-up"></i> Traffic Over Time</h3>
+        </div>
+        <div class="card-body">
+            <canvas id="trafficChart" height="300"></canvas>
+        </div>
+    </div>
+    
+    <div class="chart-card">
+        <div class="card-header">
+            <h3><i class="bi bi-pie-chart"></i> Protocol Distribution</h3>
+        </div>
+        <div class="card-body">
+            <canvas id="protocolChart" height="300"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Top Talkers Table -->
+<div class="chart-card full-width">
+    <div class="card-header">
+        <h3><i class="bi bi-people"></i> Top Talkers</h3>
+    </div>
+    <div class="card-body">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Source IP</th>
+                    <th>Destination IP</th>
+                    <th>Protocol</th>
+                    <th>Bytes</th>
+                    <th>Packets</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for flow in traffic_data.top_talkers[:10] %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td><code>{{ flow.src_ip }}</code></td>
+                    <td><code>{{ flow.dst_ip }}</code></td>
+                    <td><span class="badge bg-info">{{ flow.protocol }}</span></td>
+                    <td>{{ flow.bytes | filesizeformat }}</td>
+                    <td>{{ flow.packets }}</td>
+                    <td><span class="badge bg-success">Normal</span></td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-4">
+                        <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                        No traffic data available yet. Start monitoring to see results.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Traffic Over Time Chart
+const trafficCtx = document.getElementById('trafficChart').getContext('2d');
+new Chart(trafficCtx, {
+    type: 'line',
+    data: {
+        labels: {{ traffic_data.timeline_labels | default([]) | tojson }},
+        datasets: [{
+            label: 'Inbound',
+            data: {{ traffic_data.timeline_inbound | default([]) | tojson }},
+            borderColor: '#0d6efd',
+            backgroundColor: 'rgba(13, 110, 253, 0.1)',
+            fill: true,
+            tension: 0.4
+        }, {
+            label: 'Outbound',
+            data: {{ traffic_data.timeline_outbound | default([]) | tojson }},
+            borderColor: '#fd7e14',
+            backgroundColor: 'rgba(253, 126, 20, 0.1)',
+            fill: true,
+            tension: 0.4
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { labels: { color: '#a0a0a0' } } },
+        scales: {
+            x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#a0a0a0' } },
+            y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#a0a0a0' } }
+        }
+    }
+});
+
+// Protocol Distribution Chart
+const protocolCtx = document.getElementById('protocolChart').getContext('2d');
+new Chart(protocolCtx, {
+    type: 'doughnut',
+    data: {
+        labels: {{ traffic_data.protocol_labels | default(['TCP', 'UDP', 'ICMP', 'Other']) | tojson }},
+        datasets: [{
+            data: {{ traffic_data.protocol_values | default([45, 30, 15, 10]) | tojson }},
+            backgroundColor: ['#0d6efd', '#198754', '#ffc107', '#6f42c1']
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom', labels: { color: '#a0a0a0' } } }
+    }
+});
+
+document.getElementById('time-range').addEventListener('change', function() {
+    window.location.href = '?days=' + this.value;
+});
+</script>
+{% endblock %}

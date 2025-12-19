@@ -1,0 +1,29 @@
+# AI-NIDS Development Docker Compose
+# Lightweight setup for local development
+
+version: '3.8'
+
+services:
+  # ========== Flask App (Dev Mode) ==========
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: ai-nids-dev
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=development
+      - FLASK_DEBUG=1
+      - SECRET_KEY=dev-secret-key
+      - DATABASE_URL=sqlite:///instance/ai_nids.db
+    volumes:
+      - .:/app
+      - /app/.venv  # Exclude venv from mount
+    command: ["flask", "run", "--host=0.0.0.0", "--debug", "--reload"]
+    networks:
+      - nids-dev
+
+networks:
+  nids-dev:
+    driver: bridge

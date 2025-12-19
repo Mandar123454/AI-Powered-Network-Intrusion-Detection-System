@@ -1,0 +1,246 @@
+{% extends "base.html" %}
+
+{% block title %}Login{% endblock %}
+
+{% block auth_content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <div class="auth-logo">
+                <i class="bi bi-shield-check"></i>
+            </div>
+            <h1>Welcome Back</h1>
+            <p>Sign in to AI-NIDS Dashboard</p>
+        </div>
+        
+        <form method="POST" class="auth-form">
+            {{ form.hidden_tag() }}
+            
+            <div class="form-group">
+                <label for="username">
+                    <i class="bi bi-person"></i>
+                    Username
+                </label>
+                {{ form.username(class="form-control", placeholder="Enter your username") }}
+                {% if form.username.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ form.username.errors[0] }}
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="password">
+                    <i class="bi bi-lock"></i>
+                    Password
+                </label>
+                {{ form.password(class="form-control", placeholder="Enter your password") }}
+                {% if form.password.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ form.password.errors[0] }}
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="form-check mb-4">
+                {{ form.remember_me(class="form-check-input") }}
+                <label class="form-check-label" for="remember_me">
+                    Remember me
+                </label>
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-login">
+                <i class="bi bi-box-arrow-in-right me-2"></i>
+                Sign In
+            </button>
+        </form>
+        
+        <div class="auth-footer">
+            <p>Don't have an account? <a href="{{ url_for('auth.register') }}">Register</a></p>
+        </div>
+    </div>
+    
+    <div class="auth-info">
+        <div class="info-content">
+            <h2>AI-NIDS</h2>
+            <p>Industry-grade Network Intrusion Detection powered by Machine Learning</p>
+            
+            <div class="info-features">
+                <div class="info-feature">
+                    <i class="bi bi-shield-check"></i>
+                    <span>Real-time threat detection</span>
+                </div>
+                <div class="info-feature">
+                    <i class="bi bi-robot"></i>
+                    <span>AI-powered analysis</span>
+                </div>
+                <div class="info-feature">
+                    <i class="bi bi-lightning-charge"></i>
+                    <span>Sub-50ms response time</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .auth-wrapper {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%);
+    }
+    
+    .auth-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        max-width: 1000px;
+        width: 100%;
+        margin: 2rem;
+        background: #12121a;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5);
+    }
+    
+    .auth-card {
+        padding: 3rem;
+    }
+    
+    .auth-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .auth-logo {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #0d6efd, #0056d6);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        font-size: 2rem;
+    }
+    
+    .auth-header h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+    
+    .auth-header p {
+        color: #a0a0a0;
+    }
+    
+    .auth-form .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .auth-form label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #a0a0a0;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .auth-form .form-control {
+        background: #1a1a2e;
+        border: 1px solid #2a2a3a;
+        padding: 0.875rem 1rem;
+        border-radius: 12px;
+        color: #fff;
+        transition: all 0.3s ease;
+    }
+    
+    .auth-form .form-control:focus {
+        background: #1a1a2e;
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+    }
+    
+    .btn-login {
+        width: 100%;
+        padding: 1rem;
+        font-size: 1rem;
+        font-weight: 600;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #0d6efd, #0056d6);
+        border: none;
+    }
+    
+    .btn-login:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(13, 110, 253, 0.3);
+    }
+    
+    .auth-footer {
+        text-align: center;
+        margin-top: 2rem;
+        color: #a0a0a0;
+    }
+    
+    .auth-footer a {
+        color: #0d6efd;
+        text-decoration: none;
+        font-weight: 500;
+    }
+    
+    .auth-info {
+        background: linear-gradient(135deg, #0d6efd, #0056d6);
+        padding: 3rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .info-content {
+        text-align: center;
+    }
+    
+    .info-content h2 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+    
+    .info-content > p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin-bottom: 2rem;
+    }
+    
+    .info-features {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .info-feature {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 1rem;
+        border-radius: 12px;
+    }
+    
+    .info-feature i {
+        font-size: 1.25rem;
+    }
+    
+    @media (max-width: 768px) {
+        .auth-container {
+            grid-template-columns: 1fr;
+        }
+        
+        .auth-info {
+            display: none;
+        }
+    }
+</style>
+{% endblock %}

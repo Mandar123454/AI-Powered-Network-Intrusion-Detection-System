@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>403 - Firewall Active | AI-NIDS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body>
+<div class="cyber-error-container error-403">
+    <!-- Firewall Shield -->
+    <div class="firewall-field"></div>
+    <div class="barrier-grid"></div>
+    
+    <!-- Electric Barrier -->
+    <div class="electric-barrier">
+        <div class="barrier-line bl1"></div>
+        <div class="barrier-line bl2"></div>
+        <div class="barrier-line bl3"></div>
+        <div class="barrier-line bl4"></div>
+    </div>
+    
+    <!-- Error Core -->
+    <div class="error-core">
+        <!-- Shield Icon -->
+        <div class="firewall-icon">
+            <svg viewBox="0 0 80 90" class="shield-svg">
+                <defs>
+                    <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:#ff4757"/>
+                        <stop offset="100%" style="stop-color:#c0392b"/>
+                    </linearGradient>
+                </defs>
+                <path d="M40,5 L75,20 L75,45 Q75,75 40,88 Q5,75 5,45 L5,20 Z" 
+                      fill="none" stroke="url(#shieldGrad)" stroke-width="3" class="shield-path"/>
+                <path d="M40,15 L65,27 L65,43 Q65,67 40,78 Q15,67 15,43 L15,27 Z" 
+                      fill="rgba(255, 71, 87, 0.1)" stroke="none" class="shield-fill"/>
+                <line x1="28" y1="45" x2="38" y2="55" stroke="#ff4757" stroke-width="4" stroke-linecap="round"/>
+                <line x1="52" y1="35" x2="38" y2="55" stroke="#ff4757" stroke-width="4" stroke-linecap="round"/>
+            </svg>
+            <div class="shield-pulse"></div>
+        </div>
+        
+        <!-- Error Code -->
+        <div class="error-code-wrapper">
+            <h1 class="error-code forbidden-glitch" data-text="403">403</h1>
+        </div>
+        
+        <!-- Forbidden Message -->
+        <div class="forbidden-box">
+            <div class="forbidden-header">
+                <span class="block-icon">⛔</span>
+                <span>FIREWALL PROTOCOL ACTIVATED</span>
+            </div>
+            <h2 class="forbidden-title">ACCESS FORBIDDEN</h2>
+            <p class="forbidden-description">
+                Your clearance level is insufficient for this sector.
+                <br>
+                <span class="forbidden-code">[STATUS: PERMISSION_DENIED]</span>
+            </p>
+        </div>
+        
+        <!-- Clearance Info -->
+        <div class="clearance-panel">
+            <div class="clearance-meter">
+                <div class="meter-label">CLEARANCE LEVEL</div>
+                <div class="meter-bar">
+                    <div class="meter-fill"></div>
+                    <div class="meter-required"></div>
+                </div>
+                <div class="meter-labels">
+                    <span>YOUR LEVEL</span>
+                    <span class="required-label">REQUIRED</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <a href="{{ url_for('dashboard.index') }}" class="cyber-btn retreat">
+                <i class="bi bi-shield-x"></i>
+                <span>TACTICAL RETREAT</span>
+            </a>
+        </div>
+        
+        <!-- Security Note -->
+        <div class="security-note">
+            <i class="bi bi-info-circle"></i>
+            <span>Contact system administrator for elevated access</span>
+        </div>
+    </div>
+</div>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;900&display=swap');
+
+.cyber-error-container.error-403 {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1a0808 0%, #0d0d0d 50%, #0a0a0f 100%);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.firewall-field {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at center, rgba(255, 71, 87, 0.05) 0%, transparent 50%);
+}
+
+.barrier-grid {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(255, 71, 87, 0.03) 40px, rgba(255, 71, 87, 0.03) 41px),
+        repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(255, 71, 87, 0.03) 40px, rgba(255, 71, 87, 0.03) 41px);
+}
+
+.electric-barrier {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+}
+
+.barrier-line {
+    position: absolute;
+    background: linear-gradient(90deg, transparent, rgba(255, 71, 87, 0.5), transparent);
+    height: 1px;
+    width: 100%;
+    animation: barrierFlash 2s infinite;
+}
+
+.barrier-line.bl1 { top: 20%; animation-delay: 0s; }
+.barrier-line.bl2 { top: 40%; animation-delay: 0.5s; }
+.barrier-line.bl3 { top: 60%; animation-delay: 1s; }
+.barrier-line.bl4 { top: 80%; animation-delay: 1.5s; }
+
+@keyframes barrierFlash {
+    0%, 90%, 100% { opacity: 0.1; }
+    95% { opacity: 1; box-shadow: 0 0 20px rgba(255, 71, 87, 0.8); }
+}
+
+.error-core {
+    text-align: center;
+    z-index: 10;
+    padding: 2rem;
+}
+
+.firewall-icon {
+    position: relative;
+    width: 80px;
+    height: 90px;
+    margin: 0 auto 1rem;
+}
+
+.shield-svg { width: 100%; height: 100%; }
+
+.shield-path {
+    animation: shieldGlow 2s ease-in-out infinite;
+}
+
+@keyframes shieldGlow {
+    0%, 100% { filter: drop-shadow(0 0 5px rgba(255, 71, 87, 0.5)); }
+    50% { filter: drop-shadow(0 0 20px rgba(255, 71, 87, 0.8)); }
+}
+
+.shield-pulse {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100px;
+    height: 110px;
+    border: 2px solid rgba(255, 71, 87, 0.3);
+    border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+    animation: pulsate 2s ease-out infinite;
+}
+
+@keyframes pulsate {
+    0% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
+    100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
+}
+
+.error-code {
+    font-size: clamp(5rem, 18vw, 10rem);
+    font-weight: 900;
+    font-family: 'Orbitron', sans-serif;
+    color: #ff4757;
+    text-shadow: 0 0 40px rgba(255, 71, 87, 0.6);
+}
+
+.forbidden-glitch {
+    animation: forbiddenGlitch 4s infinite;
+}
+
+@keyframes forbiddenGlitch {
+    0%, 92%, 100% { transform: translate(0); opacity: 1; }
+    93% { transform: translate(-3px, 0); opacity: 0.8; }
+    94% { transform: translate(3px, 0); opacity: 1; }
+    95% { transform: translate(0, -2px); opacity: 0.9; }
+    96% { transform: translate(0, 2px); opacity: 1; }
+}
+
+.forbidden-box {
+    background: rgba(255, 71, 87, 0.08);
+    border: 1px solid rgba(255, 71, 87, 0.2);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin: 1.5rem auto;
+    max-width: 420px;
+}
+
+.forbidden-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.7rem;
+    color: #ff4757;
+    letter-spacing: 2px;
+}
+
+.block-icon {
+    animation: blockPulse 1s infinite;
+}
+
+@keyframes blockPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.forbidden-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.3rem;
+    color: #fff;
+    margin-bottom: 0.5rem;
+    letter-spacing: 2px;
+}
+
+.forbidden-description { color: #8892a0; font-size: 0.95rem; }
+
+.forbidden-code { color: #ff4757; font-family: 'Courier New', monospace; font-size: 0.85rem; }
+
+.clearance-panel {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 71, 87, 0.15);
+    border-radius: 8px;
+    padding: 1rem 1.5rem;
+    margin: 1.5rem auto;
+    max-width: 300px;
+}
+
+.meter-label {
+    font-size: 0.7rem;
+    color: #8892a0;
+    letter-spacing: 2px;
+    margin-bottom: 0.5rem;
+}
+
+.meter-bar {
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+}
+
+.meter-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 35%;
+    background: linear-gradient(90deg, #ffa502, #ffcc00);
+    border-radius: 4px;
+}
+
+.meter-required {
+    position: absolute;
+    right: 25%;
+    top: -2px;
+    width: 2px;
+    height: 12px;
+    background: #ff4757;
+    animation: reqPulse 1s infinite;
+}
+
+@keyframes reqPulse {
+    0%, 100% { box-shadow: 0 0 5px #ff4757; }
+    50% { box-shadow: 0 0 15px #ff4757; }
+}
+
+.meter-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.5rem;
+    font-size: 0.65rem;
+    color: #8892a0;
+}
+
+.required-label { color: #ff4757; }
+
+.action-buttons {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+.cyber-btn {
+    padding: 0.8rem 2rem;
+    border: none;
+    border-radius: 5px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.cyber-btn.retreat {
+    background: linear-gradient(135deg, #ff4757, #c0392b);
+    color: #fff;
+    box-shadow: 0 0 20px rgba(255, 71, 87, 0.3);
+}
+
+.cyber-btn.retreat:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 30px rgba(255, 71, 87, 0.5);
+}
+
+.security-note {
+    margin-top: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    color: #666;
+}
+
+@media (max-width: 768px) {
+    .cyber-btn { width: 100%; max-width: 250px; justify-content: center; }
+}
+</style>
+</body>
+</html>

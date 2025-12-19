@@ -1,0 +1,156 @@
+# AI-NIDS Dependencies
+# =====================
+# Commercial-Grade AI Network Intrusion Detection System
+# Defense Mode: Full Security Autonomy Stack
+
+# Flask & Web Framework
+Flask==3.0.0
+Flask-SQLAlchemy==3.1.1
+Flask-Login==0.6.3
+Flask-WTF==1.2.1
+Flask-Migrate==4.0.5
+Flask-CORS==4.0.0
+Werkzeug==3.0.1
+Jinja2==3.1.2
+
+# Database
+SQLAlchemy==2.0.23
+alembic==1.13.0
+
+# Machine Learning - Core
+numpy>=1.26.0,<2.0
+pandas>=2.1.0,<3.0
+scikit-learn>=1.3.0,<2.0
+xgboost>=2.0.0,<3.0
+joblib>=1.3.0,<2.0
+
+# Deep Learning - PyTorch Ecosystem
+torch>=2.1.0,<3.0
+torchvision>=0.16.0,<1.0
+torchaudio>=2.1.0,<3.0
+
+# Graph Neural Networks (GNN)
+torch-geometric>=2.4.0,<3.0
+# torch-scatter>=2.1.2  # Install separately if needed
+# torch-sparse>=0.6.18  # Install separately if needed
+# torch-cluster>=1.6.3  # Install separately if needed
+networkx>=3.2.0,<4.0
+
+# Transformers & Attention Models
+transformers==4.36.0
+
+# Explainability
+shap==0.44.0
+lime==0.2.0.1
+captum==0.7.0  # PyTorch model interpretability
+
+# Data Visualization
+matplotlib==3.8.2
+seaborn==0.13.0
+plotly==5.18.0
+
+# PDF Report Generation
+reportlab==4.0.7
+
+# Network Analysis & Packet Processing
+scapy==2.5.0
+pyshark==0.6
+dpkt==1.9.8
+netifaces==0.11.0
+psutil==5.9.7
+
+# Data Processing
+scipy==1.11.4
+imbalanced-learn==0.11.0
+
+# API & Async Requests
+requests==2.31.0
+aiohttp==3.9.1
+httpx==0.25.2
+aiofiles==23.2.1
+
+# Threat Intelligence APIs
+OTXv2==1.5.12  # AlienVault OTX
+virustotal-api==1.1.11  # VirusTotal
+
+# Security
+python-dotenv==1.0.0
+bcrypt==4.1.1
+PyJWT==2.8.0
+cryptography==41.0.7
+
+# Production Server
+gunicorn==21.2.0
+gevent==23.9.1
+uvicorn==0.24.0
+
+# Utilities
+python-dateutil==2.8.2
+pytz==2023.3
+tqdm==4.66.1
+click==8.1.7
+colorama==0.4.6
+
+# Logging & Monitoring
+loguru==0.7.2
+prometheus-client==0.19.0  # Metrics export
+
+# Testing
+pytest==7.4.3
+pytest-cov==4.1.0
+pytest-flask==1.3.0
+pytest-asyncio==0.23.2
+
+# Jupyter (for notebooks)
+jupyter==1.0.0
+ipykernel==6.27.1
+notebook==7.0.6
+
+# Azure SDK (for deployment & cloud firewall)
+azure-storage-blob==12.19.0
+azure-identity==1.15.0
+azure-mgmt-network==25.2.0  # Azure Network Security Groups
+
+# AWS SDK (for cloud firewall)
+boto3==1.34.0  # AWS Security Groups
+
+# Email & Notifications
+secure-smtplib==0.1.1
+slack-sdk==3.24.0  # Slack alerts
+twilio==8.10.0  # SMS alerts (optional)
+
+# YAML Configuration
+PyYAML==6.0.1
+
+# JSON Schema Validation
+jsonschema==4.20.0
+
+# Rate Limiting
+Flask-Limiter==3.5.0
+
+# Caching
+Flask-Caching==2.1.0
+
+# Background Tasks & Scheduling
+APScheduler==3.10.4
+celery==5.3.4
+
+# Redis (for caching, queues, rate limiting)
+redis==5.0.1
+
+# Type Hints
+typing-extensions==4.8.0
+
+# Async Support
+asyncio-throttle==1.0.2
+
+# SOC Integration
+python-jira==3.6.0  # JIRA ticketing
+pagerduty==0.0.5  # PagerDuty alerts
+
+# SIEM Integration
+python-syslog-client==1.0.2
+
+# IP/GeoIP Analysis
+geoip2==4.8.0
+maxminddb==2.5.1

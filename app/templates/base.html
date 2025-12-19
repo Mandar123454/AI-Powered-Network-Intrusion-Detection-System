@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AI-NIDS{% endblock %} | AI Network Intrusion Detection</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#3b82f6">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="AI-NIDS">
+    <meta name="application-name" content="AI-NIDS">
+    <meta name="description" content="AI-Powered Network Intrusion Detection System with real-time threat monitoring">
+    
+    <!-- Open Graph / Social Preview -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="AI-NIDS - Network Intrusion Detection">
+    <meta property="og:description" content="AI-Powered Network Intrusion Detection System with ML-based threat detection">
+    <meta property="og:image" content="{{ url_for('static', filename='images/social-preview.png', _external=True) }}">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    
+    <!-- Favicon & Icons -->
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='images/icons/icon-192x192.png') }}">
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    
+    <!-- Fuse.js for Fuzzy Search -->
+    <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js"></script>
+    
+    <!-- Custom CSS -->
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    {% if current_user.is_authenticated %}
+    <!-- Sidebar -->
+    <nav id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="bi bi-shield-check"></i>
+                <span>AI-NIDS</span>
+            </div>
+        </div>
+        
+        <ul class="sidebar-nav">
+            <li class="nav-item">
+                <a href="{{ url_for('dashboard.dashboard') }}" class="nav-link {% if request.endpoint == 'dashboard.dashboard' %}active{% endif %}">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ url_for('alerts.alert_list') }}" class="nav-link {% if 'alerts' in request.endpoint %}active{% endif %}">
+                    <i class="bi bi-bell"></i>
+                    <span>Alerts</span>
+                    <span class="badge bg-danger ms-auto" id="alert-count"></span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ url_for('analytics.analytics_dashboard') }}" class="nav-link {% if request.endpoint == 'analytics.analytics_dashboard' %}active{% endif %}">
+                    <i class="bi bi-bar-chart-line"></i>
+                    <span>Analytics</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ url_for('analytics.traffic_analytics') }}" class="nav-link {% if request.endpoint == 'analytics.traffic_analytics' %}active{% endif %}">
+                    <i class="bi bi-diagram-3"></i>
+                    <span>Traffic</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ url_for('analytics.threat_analytics') }}" class="nav-link {% if request.endpoint == 'analytics.threat_analytics' %}active{% endif %}">
+                    <i class="bi bi-bug"></i>
+                    <span>Threats</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ url_for('analytics.reports') }}" class="nav-link {% if request.endpoint == 'analytics.reports' %}active{% endif %}">
+                    <i class="bi bi-file-earmark-text"></i>
+                    <span>Reports</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ url_for('ai_models.ai_models_page') }}" class="nav-link {% if request.endpoint == 'ai_models.ai_models_page' %}active{% endif %}">
+                    <i class="bi bi-robot"></i>
+                    <span>AI Defense</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ url_for('dashboard.showcase') }}" class="nav-link {% if request.endpoint == 'dashboard.showcase' %}active{% endif %}">
+                    <i class="bi bi-stars"></i>
+                    <span>Showcase</span>
+                </a>
+            </li>
+            
+            {% if current_user.role == 'admin' %}
+            <li class="nav-section">Administration</li>
+            <li class="nav-item">
+                <a href="{{ url_for('auth.user_list') }}" class="nav-link {% if request.endpoint == 'auth.user_list' %}active{% endif %}">
+                    <i class="bi bi-people"></i>
+                    <span>Users</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ url_for('auth.settings') }}" class="nav-link {% if request.endpoint == 'auth.settings' %}active{% endif %}">
+                    <i class="bi bi-gear"></i>
+                    <span>Settings</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ url_for('api.api_index') }}" class="nav-link {% if request.endpoint == 'api.api_index' %}active{% endif %}" target="_blank">
+                    <i class="bi bi-code-slash"></i>
+                    <span>API Docs</span>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+        
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <i class="bi bi-person-circle"></i>
+                <div class="user-details">
+                    <span class="username">{{ current_user.username }}</span>
+                    <span class="role">{{ current_user.role | title }}</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Navbar -->
+        <nav class="top-navbar">
+            <button id="sidebar-toggle" class="btn btn-link" title="Toggle Sidebar">
+                <i class="bi bi-list"></i>
+            </button>
+            
+            <div class="navbar-search">
+                <i class="bi bi-search"></i>
+                <input type="text" placeholder="Search alerts, IPs... (e.g., 192.168.1.1, 8.8.8.8, malware)" class="form-control" id="global-search">
+            </div>
+            
+            <div class="navbar-actions">
+                <button class="btn btn-link position-relative" id="notifications-btn">
+                    <i class="bi bi-bell"></i>
+                    <span class="notification-badge"></span>
+                </button>
+                
+                <div class="dropdown">
+                    <button class="btn btn-link dropdown-toggle" data-bs-toggle="dropdown">
+                        <i class="bi bi-person-circle"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{{ url_for('auth.profile') }}"><i class="bi bi-person me-2"></i>Profile</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('auth.change_password') }}"><i class="bi bi-key me-2"></i>Change Password</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-messages">
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+        
+        <!-- Page Content -->
+        <div class="content-wrapper">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+    
+    {% else %}
+    <!-- Non-authenticated layout -->
+    <div class="auth-wrapper">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-messages">
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+        
+        {% block auth_content %}{% endblock %}
+    </div>
+    {% endif %}
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+    
+    <!-- Notifications System -->
+    {% if current_user.is_authenticated %}
+    <script>
+        // Notification system
+        const notificationBtn = document.getElementById('notifications-btn');
+        const notificationBadge = document.querySelector('.notification-badge');
+        let notificationDropdown = null;
+        
+        if (notificationBtn) {
+            // Create dropdown
+            notificationDropdown = document.createElement('div');
+            notificationDropdown.className = 'notification-dropdown';
+            notificationDropdown.innerHTML = '<div class="notification-loading">Loading...</div>';
+            notificationBtn.parentElement.style.position = 'relative';
+            notificationBtn.parentElement.appendChild(notificationDropdown);
+            
+            // Toggle on click
+            notificationBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                notificationDropdown.classList.toggle('show');
+                if (notificationDropdown.classList.contains('show')) {
+                    loadNotifications();
+                }
+            });
+            
+            // Close on outside click
+            document.addEventListener('click', function() {
+                notificationDropdown.classList.remove('show');
+            });
+            
+            notificationDropdown.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+            
+            // Load notifications
+            function loadNotifications() {
+                fetch('/dashboard/notifications')
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.count > 0) {
+                            notificationBadge.textContent = data.count;
+                            notificationBadge.style.display = 'flex';
+                            
+                            let html = `<div class="notification-header">
+                                <span>Notifications (${data.count})</span>
+                                <button onclick="markAllRead()" class="mark-read-btn">Mark all read</button>
+                            </div><div class="notification-list">`;
+                            
+                            data.notifications.forEach(n => {
+                                const severityClass = n.severity === 'critical' ? 'critical' : n.severity === 'high' ? 'high' : 'medium';
+                                html += `
+                                    <div class="notification-item ${severityClass}" data-id="${n.id}">
+                                        <div class="notif-icon">${n.severity === 'critical' ? '🔴' : '🟠'}</div>
+                                        <div class="notif-content">
+                                            <div class="notif-title">${n.title}</div>
+                                            <div class="notif-message">${n.message}</div>
+                                            <div class="notif-time">${formatTime(n.timestamp)}</div>
+                                        </div>
+                                    </div>
+                                `;
+                            });
+                            
+                            html += '</div>';
+                            notificationDropdown.innerHTML = html;
+                        } else {
+                            notificationBadge.style.display = 'none';
+                            notificationDropdown.innerHTML = `
+                                <div class="notification-empty">
+                                    <i class="bi bi-bell-slash"></i>
+                                    <p>No new notifications</p>
+                                </div>
+                            `;
+                        }
+                    })
+                    .catch(() => {
+                        notificationDropdown.innerHTML = '<div class="notification-error">Failed to load</div>';
+                    });
+            }
+            
+            function formatTime(timestamp) {
+                if (!timestamp) return '';
+                const date = new Date(timestamp);
+                const now = new Date();
+                const diff = Math.floor((now - date) / 1000);
+                if (diff < 60) return 'Just now';
+                if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+                if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+                return date.toLocaleDateString();
+            }
+            
+            // Initial load
+            loadNotifications();
+            
+            // Refresh every 30 seconds
+            setInterval(loadNotifications, 30000);
+        }
+        
+        function markAllRead() {
+            fetch('/dashboard/notifications/mark-read', { method: 'POST', headers: {'Content-Type': 'application/json'} })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        notificationBadge.style.display = 'none';
+                        notificationDropdown.innerHTML = `
+                            <div class="notification-empty">
+                                <i class="bi bi-check-circle"></i>
+                                <p>All caught up!</p>
+                            </div>
+                        `;
+                    }
+                });
+        }
+    </script>
+    
+    <style>
+        .notification-badge {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            width: 18px;
+            height: 18px;
+            background: #ff4757;
+            border-radius: 50%;
+            font-size: 10px;
+            color: white;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .notification-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            width: 320px;
+            background: #12121a;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.2s ease;
+            z-index: 9999;
+            max-height: 400px;
+            overflow: hidden;
+        }
+        
+        .notification-dropdown.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        .notification-header {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+        }
+        
+        .mark-read-btn {
+            background: none;
+            border: none;
+            color: #00f2fe;
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+        
+        .notification-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .notification-item {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            display: flex;
+            gap: 0.75rem;
+            transition: background 0.2s;
+        }
+        
+        .notification-item:hover {
+            background: rgba(255,255,255,0.03);
+        }
+        
+        .notification-item.critical {
+            border-left: 3px solid #ff4757;
+        }
+        
+        .notification-item.high {
+            border-left: 3px solid #ff9f43;
+        }
+        
+        .notif-icon { font-size: 1.2rem; }
+        .notif-content { flex: 1; }
+        .notif-title { font-weight: 500; font-size: 0.85rem; }
+        .notif-message { color: #a0a0a0; font-size: 0.75rem; margin-top: 0.25rem; }
+        .notif-time { color: #666; font-size: 0.7rem; margin-top: 0.25rem; }
+        
+        .notification-empty, .notification-loading, .notification-error {
+            padding: 2rem;
+            text-align: center;
+            color: #a0a0a0;
+        }
+        
+        .notification-empty i {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            display: block;
+            color: #00d26a;
+        }
+    </style>
+    {% endif %}
+    
+    <!-- Fuzzy Search Script -->
+    <script src="{{ url_for('static', filename='js/fuse-search.js') }}"></script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+        // Register PWA Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', async () => {
+                try {
+                    const registration = await navigator.serviceWorker.register('/static/sw.js', {
+                        scope: '/'
+                    });
+                    console.log('✅ Service Worker registered:', registration.scope);
+                    
+                    // Check for updates periodically
+                    setInterval(() => {
+                        registration.update();
+                    }, 60 * 60 * 1000); // Check every hour
+                    
+                } catch (error) {
+                    console.log('⚠️ Service Worker registration failed:', error);
+                }
+            });
+        }
+        
+        // PWA Install Prompt
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // Show install button if available
+            const installBtn = document.getElementById('pwa-install-btn');
+            if (installBtn) {
+                installBtn.style.display = 'block';
+                installBtn.addEventListener('click', async () => {
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    console.log(`PWA install: ${outcome}`);
+                    deferredPrompt = null;
+                    installBtn.style.display = 'none';
+                });
+            }
+        });
+        
+        // Handle app installed event
+        window.addEventListener('appinstalled', () => {
+            console.log('✅ AI-NIDS installed as PWA');
+            deferredPrompt = null;
+        });
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

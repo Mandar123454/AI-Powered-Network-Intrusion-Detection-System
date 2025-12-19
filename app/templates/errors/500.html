@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>500 - Core Meltdown | AI-NIDS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body>
+<div class="cyber-error-container error-500">
+    <!-- Critical Alert Background -->
+    <div class="alert-pulse"></div>
+    <div class="circuit-grid"></div>
+    
+    <!-- Warning Beacons -->
+    <div class="warning-beacons">
+        <div class="beacon b1"></div>
+        <div class="beacon b2"></div>
+        <div class="beacon b3"></div>
+        <div class="beacon b4"></div>
+    </div>
+    
+    <!-- Error Core -->
+    <div class="error-core">
+        <!-- Core Breach Animation -->
+        <div class="core-breach">
+            <div class="breach-ring r1"></div>
+            <div class="breach-ring r2"></div>
+            <div class="breach-ring r3"></div>
+            <div class="error-icon">
+                <svg viewBox="0 0 100 100" class="warning-svg">
+                    <polygon points="50,10 90,85 10,85" fill="none" stroke="#ff4757" stroke-width="3" class="warning-triangle"/>
+                    <line x1="50" y1="35" x2="50" y2="55" stroke="#ff4757" stroke-width="4" stroke-linecap="round"/>
+                    <circle cx="50" cy="68" r="3" fill="#ff4757"/>
+                </svg>
+            </div>
+        </div>
+        
+        <!-- Error Code -->
+        <div class="error-code-wrapper">
+            <h1 class="error-code critical-glitch" data-text="500">500</h1>
+        </div>
+        
+        <!-- System Failure Message -->
+        <div class="failure-box">
+            <div class="failure-header">
+                <span class="alert-dot"></span>
+                <span>CRITICAL SYSTEM ALERT</span>
+            </div>
+            <h2 class="failure-title">CORE PROCESS FAILURE</h2>
+            <p class="failure-description">
+                Internal neural pathway malfunction detected.
+                <br>
+                <span class="error-log">[ERROR: SYSTEM_EXCEPTION_UNHANDLED]</span>
+            </p>
+        </div>
+        
+        <!-- Diagnostic Panel -->
+        <div class="diagnostic-panel">
+            <div class="diag-header">SYSTEM DIAGNOSTICS</div>
+            <div class="diag-content">
+                <div class="diag-item">
+                    <span class="diag-label">Memory Status</span>
+                    <span class="diag-value error">OVERFLOW</span>
+                </div>
+                <div class="diag-item">
+                    <span class="diag-label">Process State</span>
+                    <span class="diag-value error">TERMINATED</span>
+                </div>
+                <div class="diag-item">
+                    <span class="diag-label">Recovery Mode</span>
+                    <span class="diag-value active">INITIATING</span>
+                </div>
+            </div>
+            <div class="recovery-bar">
+                <div class="recovery-progress"></div>
+            </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <a href="{{ url_for('dashboard.index') }}" class="cyber-btn emergency">
+                <i class="bi bi-shield-exclamation"></i>
+                <span>EMERGENCY RETURN</span>
+            </a>
+            <button onclick="location.reload()" class="cyber-btn retry">
+                <i class="bi bi-arrow-repeat"></i>
+                <span>REINITIALIZE</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;900&display=swap');
+
+.cyber-error-container.error-500 {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1a0a0a 0%, #0d0d0d 50%, #0a0a0f 100%);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.alert-pulse {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at center, rgba(255, 71, 87, 0.1) 0%, transparent 70%);
+    animation: alertPulse 2s ease-in-out infinite;
+}
+
+@keyframes alertPulse {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.6; }
+}
+
+.circuit-grid {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        linear-gradient(rgba(255, 71, 87, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 71, 87, 0.05) 1px, transparent 1px);
+    background-size: 30px 30px;
+}
+
+.warning-beacons {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+}
+
+.beacon {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 71, 87, 0.3) 0%, transparent 70%);
+    animation: beaconPulse 3s ease-in-out infinite;
+}
+
+.beacon.b1 { top: 10%; left: 10%; animation-delay: 0s; }
+.beacon.b2 { top: 10%; right: 10%; animation-delay: 0.75s; }
+.beacon.b3 { bottom: 10%; left: 10%; animation-delay: 1.5s; }
+.beacon.b4 { bottom: 10%; right: 10%; animation-delay: 2.25s; }
+
+@keyframes beaconPulse {
+    0%, 100% { transform: scale(1); opacity: 0.3; }
+    50% { transform: scale(1.5); opacity: 0.1; }
+}
+
+.error-core {
+    text-align: center;
+    z-index: 10;
+    padding: 2rem;
+}
+
+.core-breach {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 1rem;
+}
+
+.breach-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: 2px solid rgba(255, 71, 87, 0.5);
+    border-radius: 50%;
+    animation: breachExpand 2s ease-out infinite;
+}
+
+.breach-ring.r1 { width: 60px; height: 60px; animation-delay: 0s; }
+.breach-ring.r2 { width: 80px; height: 80px; animation-delay: 0.4s; }
+.breach-ring.r3 { width: 100px; height: 100px; animation-delay: 0.8s; }
+
+@keyframes breachExpand {
+    0% { transform: translate(-50%, -50%) scale(0.8); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
+}
+
+.error-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 50px;
+    height: 50px;
+}
+
+.warning-svg { width: 100%; height: 100%; }
+
+.warning-triangle {
+    animation: triangleFlash 1s ease-in-out infinite;
+}
+
+@keyframes triangleFlash {
+    0%, 100% { stroke: #ff4757; filter: drop-shadow(0 0 5px #ff4757); }
+    50% { stroke: #ff6b7a; filter: drop-shadow(0 0 15px #ff4757); }
+}
+
+.error-code {
+    font-size: clamp(5rem, 18vw, 10rem);
+    font-weight: 900;
+    font-family: 'Orbitron', sans-serif;
+    color: #ff4757;
+    text-shadow: 0 0 40px rgba(255, 71, 87, 0.8), 0 0 80px rgba(255, 71, 87, 0.4);
+    position: relative;
+}
+
+.critical-glitch {
+    animation: criticalGlitch 0.5s infinite;
+}
+
+@keyframes criticalGlitch {
+    0%, 85%, 100% { transform: translate(0); text-shadow: 0 0 40px rgba(255, 71, 87, 0.8); }
+    86% { transform: translate(-3px, 0); text-shadow: 3px 0 #00f2fe, -3px 0 #ff4757; }
+    88% { transform: translate(3px, 0); text-shadow: -3px 0 #00f2fe, 3px 0 #ff4757; }
+    90% { transform: translate(-2px, 2px); text-shadow: 2px -2px #00f2fe, -2px 2px #ff4757; }
+}
+
+.failure-box {
+    background: rgba(255, 71, 87, 0.1);
+    border: 1px solid rgba(255, 71, 87, 0.3);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin: 1.5rem auto;
+    max-width: 450px;
+}
+
+.failure-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.75rem;
+    color: #ff4757;
+    letter-spacing: 2px;
+}
+
+.alert-dot {
+    width: 8px;
+    height: 8px;
+    background: #ff4757;
+    border-radius: 50%;
+    animation: dotBlink 0.5s infinite;
+}
+
+@keyframes dotBlink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+.failure-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.5rem;
+    color: #fff;
+    margin-bottom: 0.5rem;
+    letter-spacing: 2px;
+}
+
+.failure-description { color: #8892a0; font-size: 0.95rem; }
+
+.error-log { color: #ff4757; font-family: 'Courier New', monospace; font-size: 0.85rem; }
+
+.diagnostic-panel {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 71, 87, 0.2);
+    border-radius: 8px;
+    padding: 1rem;
+    margin: 1.5rem auto;
+    max-width: 350px;
+}
+
+.diag-header {
+    font-size: 0.7rem;
+    color: #ff4757;
+    letter-spacing: 2px;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.diag-content { margin-bottom: 1rem; }
+
+.diag-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.4rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.diag-label { color: #8892a0; font-size: 0.8rem; }
+
+.diag-value {
+    font-family: 'Courier New', monospace;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.diag-value.error { color: #ff4757; }
+.diag-value.active { color: #00f2fe; animation: valueFlash 1s infinite; }
+
+@keyframes valueFlash {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.recovery-bar {
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.recovery-progress {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #ff4757, #ff6b7a);
+    animation: recoveryLoad 4s ease-in-out infinite;
+}
+
+@keyframes recoveryLoad {
+    0% { width: 0%; }
+    50% { width: 60%; }
+    100% { width: 0%; }
+}
+
+.action-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+.cyber-btn {
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 5px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.cyber-btn.emergency {
+    background: linear-gradient(135deg, #ff4757, #ff6b7a);
+    color: #fff;
+    box-shadow: 0 0 20px rgba(255, 71, 87, 0.4);
+}
+
+.cyber-btn.emergency:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 30px rgba(255, 71, 87, 0.6);
+}
+
+.cyber-btn.retry {
+    background: transparent;
+    color: #ff4757;
+    border: 1px solid #ff4757;
+}
+
+.cyber-btn.retry:hover {
+    background: rgba(255, 71, 87, 0.1);
+    transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+    .action-buttons { flex-direction: column; align-items: center; }
+    .cyber-btn { width: 100%; max-width: 250px; justify-content: center; }
+}
+</style>
+</body>
+</html>

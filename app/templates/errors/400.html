@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>400 - Malformed Signal | AI-NIDS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body>
+<div class="cyber-error-container error-400">
+    <!-- Corrupted Field -->
+    <div class="corrupted-field"></div>
+    <div class="noise-overlay"></div>
+    
+    <!-- Glitch Fragments -->
+    <div class="glitch-fragments">
+        <div class="fragment f1"></div>
+        <div class="fragment f2"></div>
+        <div class="fragment f3"></div>
+        <div class="fragment f4"></div>
+        <div class="fragment f5"></div>
+    </div>
+    
+    <!-- Error Core -->
+    <div class="error-core">
+        <!-- Corrupted Icon -->
+        <div class="corrupt-icon">
+            <svg viewBox="0 0 80 80" class="corrupt-svg">
+                <defs>
+                    <linearGradient id="corruptGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#ffa502"/>
+                        <stop offset="100%" style="stop-color:#ff6348"/>
+                    </linearGradient>
+                </defs>
+                <!-- Broken Document -->
+                <path d="M20,10 L50,10 L60,20 L60,70 L20,70 Z" fill="none" stroke="url(#corruptGrad)" stroke-width="2" class="doc-path"/>
+                <path d="M50,10 L50,20 L60,20" fill="none" stroke="url(#corruptGrad)" stroke-width="2"/>
+                <!-- Corruption Lines -->
+                <line x1="28" y1="32" x2="52" y2="32" stroke="#ffa502" stroke-width="2" class="corrupt-line cl1"/>
+                <line x1="28" y1="42" x2="45" y2="42" stroke="#ff6348" stroke-width="2" class="corrupt-line cl2"/>
+                <line x1="28" y1="52" x2="50" y2="52" stroke="#ffa502" stroke-width="2" class="corrupt-line cl3"/>
+                <!-- Error X -->
+                <line x1="35" y1="35" x2="50" y2="55" stroke="#ff4757" stroke-width="3" stroke-linecap="round" class="error-x"/>
+                <line x1="50" y1="35" x2="35" y2="55" stroke="#ff4757" stroke-width="3" stroke-linecap="round" class="error-x"/>
+            </svg>
+        </div>
+        
+        <!-- Error Code -->
+        <div class="error-code-wrapper">
+            <h1 class="error-code malform-glitch" data-text="400">400</h1>
+        </div>
+        
+        <!-- Corrupted Message -->
+        <div class="corrupt-box">
+            <div class="corrupt-header">
+                <span class="warn-icon">⚠</span>
+                <span>SIGNAL CORRUPTION DETECTED</span>
+            </div>
+            <h2 class="corrupt-title">MALFORMED REQUEST</h2>
+            <p class="corrupt-description">
+                Input signal contains invalid data patterns.
+                <br>
+                <span class="corrupt-code">[ERROR: SYNTAX_VIOLATION]</span>
+            </p>
+        </div>
+        
+        <!-- Data Analysis -->
+        <div class="analysis-panel">
+            <div class="analysis-header">PACKET ANALYSIS</div>
+            <div class="analysis-content">
+                <div class="data-stream">
+                    <span class="stream-char">0x4D</span>
+                    <span class="stream-char error">0xFF</span>
+                    <span class="stream-char">0x21</span>
+                    <span class="stream-char error">0x??</span>
+                    <span class="stream-char">0x7E</span>
+                    <span class="stream-char error">0xER</span>
+                </div>
+                <div class="analysis-result">
+                    <span class="result-label">Validation:</span>
+                    <span class="result-value failed">FAILED</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <a href="{{ url_for('dashboard.index') }}" class="cyber-btn recalibrate">
+                <i class="bi bi-arrow-repeat"></i>
+                <span>RECALIBRATE</span>
+            </a>
+        </div>
+        
+        <!-- Hint -->
+        <div class="error-hint">
+            <i class="bi bi-lightbulb"></i>
+            <span>Check your request parameters and try again</span>
+        </div>
+    </div>
+</div>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;900&display=swap');
+
+.cyber-error-container.error-400 {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #151005 0%, #0d0d0d 50%, #0a0a0f 100%);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.corrupted-field {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at center, rgba(255, 165, 2, 0.05) 0%, transparent 50%);
+}
+
+.noise-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+}
+
+.glitch-fragments {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+}
+
+.fragment {
+    position: absolute;
+    background: rgba(255, 165, 2, 0.1);
+    animation: fragmentGlitch 5s infinite;
+}
+
+.fragment.f1 { width: 100px; height: 3px; top: 25%; left: 10%; animation-delay: 0s; }
+.fragment.f2 { width: 60px; height: 2px; top: 40%; right: 15%; animation-delay: 1s; }
+.fragment.f3 { width: 80px; height: 2px; top: 55%; left: 20%; animation-delay: 2s; }
+.fragment.f4 { width: 120px; height: 3px; top: 70%; right: 10%; animation-delay: 3s; }
+.fragment.f5 { width: 50px; height: 2px; top: 85%; left: 30%; animation-delay: 4s; }
+
+@keyframes fragmentGlitch {
+    0%, 90%, 100% { opacity: 0; transform: translateX(0); }
+    92% { opacity: 1; transform: translateX(10px); background: rgba(255, 99, 72, 0.3); }
+    94% { opacity: 0.5; transform: translateX(-5px); }
+    96% { opacity: 1; transform: translateX(5px); background: rgba(255, 165, 2, 0.3); }
+    98% { opacity: 0; }
+}
+
+.error-core {
+    text-align: center;
+    z-index: 10;
+    padding: 2rem;
+}
+
+.corrupt-icon {
+    width: 70px;
+    height: 70px;
+    margin: 0 auto 1rem;
+}
+
+.corrupt-svg { width: 100%; height: 100%; }
+
+.doc-path {
+    animation: docCorrupt 3s infinite;
+}
+
+@keyframes docCorrupt {
+    0%, 85%, 100% { filter: drop-shadow(0 0 3px #ffa502); }
+    90% { filter: drop-shadow(0 0 10px #ffa502); transform: translate(1px, -1px); }
+    95% { filter: drop-shadow(0 0 5px #ff6348); transform: translate(-1px, 1px); }
+}
+
+.corrupt-line {
+    animation: lineCorrupt 2s infinite;
+}
+
+.corrupt-line.cl1 { animation-delay: 0s; }
+.corrupt-line.cl2 { animation-delay: 0.5s; }
+.corrupt-line.cl3 { animation-delay: 1s; }
+
+@keyframes lineCorrupt {
+    0%, 80%, 100% { opacity: 1; transform: scaleX(1); }
+    85% { opacity: 0.5; transform: scaleX(0.8); }
+    90% { opacity: 1; transform: scaleX(1.1); }
+}
+
+.error-x {
+    animation: xFlash 1.5s infinite;
+}
+
+@keyframes xFlash {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+.error-code {
+    font-size: clamp(5rem, 18vw, 10rem);
+    font-weight: 900;
+    font-family: 'Orbitron', sans-serif;
+    background: linear-gradient(135deg, #ffa502 0%, #ff6348 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: none;
+    filter: drop-shadow(0 0 30px rgba(255, 165, 2, 0.5));
+}
+
+.malform-glitch {
+    animation: malformGlitch 3s infinite;
+}
+
+@keyframes malformGlitch {
+    0%, 90%, 100% { transform: translate(0) skewX(0); }
+    91% { transform: translate(2px, -2px) skewX(2deg); }
+    93% { transform: translate(-2px, 1px) skewX(-1deg); }
+    95% { transform: translate(1px, 2px) skewX(1deg); }
+    97% { transform: translate(-1px, -1px) skewX(0); }
+}
+
+.corrupt-box {
+    background: rgba(255, 165, 2, 0.08);
+    border: 1px solid rgba(255, 165, 2, 0.2);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin: 1.5rem auto;
+    max-width: 400px;
+}
+
+.corrupt-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.7rem;
+    color: #ffa502;
+    letter-spacing: 2px;
+}
+
+.warn-icon {
+    animation: warnPulse 1s infinite;
+}
+
+@keyframes warnPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+}
+
+.corrupt-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.3rem;
+    color: #fff;
+    margin-bottom: 0.5rem;
+    letter-spacing: 2px;
+}
+
+.corrupt-description { color: #8892a0; font-size: 0.95rem; }
+
+.corrupt-code { color: #ff6348; font-family: 'Courier New', monospace; font-size: 0.85rem; }
+
+.analysis-panel {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 165, 2, 0.15);
+    border-radius: 8px;
+    padding: 1rem;
+    margin: 1.5rem auto;
+    max-width: 320px;
+}
+
+.analysis-header {
+    font-size: 0.7rem;
+    color: #ffa502;
+    letter-spacing: 2px;
+    margin-bottom: 0.75rem;
+}
+
+.data-stream {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.stream-char {
+    font-family: 'Courier New', monospace;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 3px;
+    color: #00f2fe;
+}
+
+.stream-char.error {
+    color: #ff4757;
+    background: rgba(255, 71, 87, 0.1);
+    animation: charError 0.5s infinite;
+}
+
+@keyframes charError {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.analysis-result {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.result-label { color: #8892a0; font-size: 0.8rem; }
+
+.result-value {
+    font-family: 'Courier New', monospace;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.result-value.failed { color: #ff4757; }
+
+.action-buttons {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+.cyber-btn {
+    padding: 0.8rem 2rem;
+    border: none;
+    border-radius: 5px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.cyber-btn.recalibrate {
+    background: linear-gradient(135deg, #ffa502, #ff6348);
+    color: #0a0a0f;
+    box-shadow: 0 0 20px rgba(255, 165, 2, 0.3);
+}
+
+.cyber-btn.recalibrate:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 30px rgba(255, 165, 2, 0.5);
+}
+
+.error-hint {
+    margin-top: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    color: #666;
+}
+
+@media (max-width: 768px) {
+    .cyber-btn { width: 100%; max-width: 250px; justify-content: center; }
+}
+</style>
+</body>
+</html>

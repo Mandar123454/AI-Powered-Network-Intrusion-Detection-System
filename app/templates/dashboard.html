@@ -1,0 +1,1060 @@
+{% extends "base.html" %}
+
+{% block title %}Command Center - AI-NIDS{% endblock %}
+
+{% block content %}
+<div class="dashboard cyber-dashboard">
+    <!-- Animated Background Elements -->
+    <div class="cyber-bg-elements">
+        <div class="grid-overlay"></div>
+        <div class="scanning-beam"></div>
+    </div>
+    
+    <!-- Page Header -->
+    <div class="page-header cyber-header">
+        <div>
+            <h1 class="page-title cyber-title">
+                <span class="title-icon">◈</span>
+                Command Center
+            </h1>
+            <p class="page-subtitle">Real-time neural network security monitoring</p>
+        </div>
+        <div class="header-actions">
+            <span class="live-indicator cyber-pulse">
+                <span class="pulse-ring"></span>
+                <span class="pulse-dot"></span>
+                <span class="status-text">LIVE MONITORING</span>
+            </span>
+            <button class="btn cyber-btn-refresh" onclick="refreshDashboard()">
+                <i class="bi bi-arrow-clockwise"></i>
+                <span>SYNC</span>
+            </button>
+        </div>
+    </div>
+    
+    <!-- Stats Cards -->
+    <div class="stats-row cyber-stats">
+        <div class="stat-card cyber-card">
+            <div class="card-glow blue"></div>
+            <div class="stat-icon blue">
+                <i class="bi bi-activity"></i>
+                <div class="icon-pulse"></div>
+            </div>
+            <div class="stat-content">
+                <h3 id="total-flows" class="cyber-number">{{ stats.total_flows|format_number }}</h3>
+                <p>Network Flows</p>
+            </div>
+            <div class="stat-trend {% if stats.flow_trend >= 0 %}up{% else %}down{% endif %}" id="flow-trend">
+                <i class="bi bi-arrow-{% if stats.flow_trend >= 0 %}up{% else %}down{% endif %}"></i> 
+                {{ stats.flow_trend|abs_value }}%
+            </div>
+            <div class="stat-sparkline" id="flows-spark"></div>
+        </div>
+        
+        <div class="stat-card cyber-card">
+            <div class="card-glow orange"></div>
+            <div class="stat-icon orange">
+                <i class="bi bi-bell"></i>
+                <div class="icon-pulse"></div>
+            </div>
+            <div class="stat-content">
+                <h3 id="total-alerts" class="cyber-number">{{ stats.total_alerts|format_number }}</h3>
+                <p>Threat Alerts</p>
+            </div>
+            <div class="stat-trend {% if stats.alert_trend <= 0 %}down{% else %}up{% endif %}" id="alert-trend">
+                <i class="bi bi-arrow-{% if stats.alert_trend <= 0 %}down{% else %}up{% endif %}"></i> 
+                {{ stats.alert_trend|abs_value }}%
+            </div>
+            <div class="stat-sparkline" id="alerts-spark"></div>
+        </div>
+        
+        <div class="stat-card cyber-card critical">
+            <div class="card-glow red"></div>
+            <div class="stat-icon red">
+                <i class="bi bi-exclamation-triangle"></i>
+                <div class="icon-pulse"></div>
+            </div>
+            <div class="stat-content">
+                <h3 id="critical-alerts" class="cyber-number">{{ stats.critical_alerts }}</h3>
+                <p>Critical Threats</p>
+            </div>
+            <div class="threat-indicator"></div>
+        </div>
+        
+        <div class="stat-card cyber-card">
+            <div class="card-glow green"></div>
+            <div class="stat-icon green">
+                <i class="bi bi-shield-check"></i>
+                <div class="icon-pulse"></div>
+            </div>
+            <div class="stat-content">
+                <h3 id="detection-rate" class="cyber-number">{{ stats.detection_rate }}%</h3>
+                <p>Detection Rate</p>
+            </div>
+            <div class="accuracy-bar">
+                <div class="accuracy-fill" id="accuracy-bar" style="width: {{ stats.detection_rate }}%"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Content Grid -->
+    <div class="dashboard-grid">
+        <!-- Traffic Chart -->
+        <div class="dashboard-card large cyber-panel">
+            <div class="panel-border"></div>
+            <div class="card-header">
+                <h3>
+                    <span class="header-icon"><i class="bi bi-graph-up"></i></span>
+                    Network Traffic Analysis
+                </h3>
+                <div class="card-actions">
+                    <select id="traffic-range" class="cyber-select" onchange="updateTrafficChart()">
+                        <option value="24">24 HOURS</option>
+                        <option value="48">48 HOURS</option>
+                        <option value="168">7 DAYS</option>
+                    </select>
+                </div>
+            </div>
+            <div class="card-body">
+                <canvas id="trafficChart" height="100"></canvas>
+            </div>
+            <div class="panel-status">
+                <span class="status-indicator online"></span>
+                <span>DATA STREAM ACTIVE</span>
+            </div>
+        </div>
+        
+        <!-- Recent Alerts -->
+        <div class="dashboard-card cyber-panel">
+            <div class="panel-border"></div>
+            <div class="card-header">
+                <h3>
+                    <span class="header-icon alert-icon"><i class="bi bi-bell"></i></span>
+                    Threat Feed
+                </h3>
+                <a href="{{ url_for('alerts.alert_list') }}" class="cyber-link">VIEW ALL →</a>
+            </div>
+            <div class="card-body">
+                <div class="alerts-list cyber-alerts" id="recent-alerts">
+                    {% for alert in recent_alerts %}
+                    <div class="alert-item cyber-alert {{ alert.severity }}">
+                        <div class="alert-severity-bar"></div>
+                        <div class="alert-icon">
+                            {{ alert.severity_icon }}
+                        </div>
+                        <div class="alert-content">
+                            <div class="alert-title">{{ alert.attack_type or 'Unknown Attack' }}</div>
+                            <div class="alert-meta">
+                                <span class="ip-tag">{{ alert.source_ip }}</span>
+                                <span class="separator">│</span>
+                                <span class="time-tag">{{ alert.timestamp.strftime('%H:%M:%S') }}</span>
+                            </div>
+                        </div>
+                        <span class="cyber-badge {{ alert.severity }}">{{ alert.severity | upper }}</span>
+                    </div>
+                    {% else %}
+                    <div class="empty-state cyber-empty">
+                        <div class="shield-icon">
+                            <i class="bi bi-shield-check"></i>
+                            <div class="shield-pulse"></div>
+                        </div>
+                        <p>PERIMETER SECURE</p>
+                        <span class="sub-text">No active threats detected</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Attack Distribution -->
+        <div class="dashboard-card cyber-panel">
+            <div class="panel-border"></div>
+            <div class="card-header">
+                <h3>
+                    <span class="header-icon"><i class="bi bi-pie-chart"></i></span>
+                    Attack Vectors
+                </h3>
+            </div>
+            <div class="card-body">
+                <canvas id="attackChart" height="200"></canvas>
+            </div>
+        </div>
+        
+        <!-- Top Source IPs -->
+        <div class="dashboard-card cyber-panel">
+            <div class="panel-border"></div>
+            <div class="card-header">
+                <h3>
+                    <span class="header-icon"><i class="bi bi-geo-alt"></i></span>
+                    Hostile Origins
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="ip-list cyber-ip-list">
+                    {% for source in top_sources %}
+                    <div class="ip-item cyber-ip">
+                        <div class="ip-rank">#{{ loop.index }}</div>
+                        <div class="ip-address">
+                            <span class="ip-icon">⬢</span>
+                            {{ source.ip }}
+                        </div>
+                        <div class="ip-count">
+                            <span class="count-value">{{ source.count }}</span>
+                            <span class="count-label">alerts</span>
+                        </div>
+                        <div class="threat-bar">
+                            <div class="threat-fill" style="width: {{ source.count|clamp(0, 100) }}%"></div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="empty-state cyber-empty small">
+                        <i class="bi bi-shield-check"></i>
+                        <p>ALL CLEAR</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Severity Breakdown -->
+        <div class="dashboard-card cyber-panel">
+            <div class="panel-border"></div>
+            <div class="card-header">
+                <h3>
+                    <span class="header-icon"><i class="bi bi-bar-chart"></i></span>
+                    Severity Matrix
+                </h3>
+            </div>
+            <div class="card-body">
+                <canvas id="severityChart" height="200"></canvas>
+            </div>
+        </div>
+        
+        <!-- System Status -->
+        <div class="dashboard-card cyber-panel system-panel">
+            <div class="panel-border"></div>
+            <div class="card-header">
+                <h3>
+                    <span class="header-icon"><i class="bi bi-cpu"></i></span>
+                    Core Systems
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="status-list cyber-status">
+                    <div class="status-item">
+                        <span class="status-indicator online"></span>
+                        <span class="status-label">ML Engine</span>
+                        <span class="status-badge online">NEURAL ACTIVE</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-indicator online"></span>
+                        <span class="status-label">Detection Core</span>
+                        <span class="status-badge online">SCANNING</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-indicator online"></span>
+                        <span class="status-label">Database</span>
+                        <span class="status-badge online">SYNCED</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-indicator online"></span>
+                        <span class="status-label">Federation Hub</span>
+                        <span class="status-badge online">CONNECTED</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-indicator online"></span>
+                        <span class="status-label">Threat Intel</span>
+                        <span class="status-badge online">UPDATED</span>
+                    </div>
+                </div>
+            </div>
+            <div class="system-uptime">
+                <span class="uptime-label">SYSTEM UPTIME</span>
+                <span class="uptime-value" id="system-uptime">100%</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cyber Dashboard Styles -->
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&display=swap');
+
+.cyber-dashboard {
+    position: relative;
+}
+
+.cyber-bg-elements {
+    position: fixed;
+    top: 0;
+    left: var(--sidebar-width);
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.grid-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        linear-gradient(rgba(0, 242, 254, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 242, 254, 0.02) 1px, transparent 1px);
+    background-size: 40px 40px;
+}
+
+.scanning-beam {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(0, 242, 254, 0.5), transparent);
+    animation: scanBeam 8s linear infinite;
+}
+
+@keyframes scanBeam {
+    0% { top: 0; opacity: 0; }
+    5% { opacity: 1; }
+    95% { opacity: 1; }
+    100% { top: 100%; opacity: 0; }
+}
+
+.cyber-header .page-title {
+    font-family: 'Orbitron', 'Inter', sans-serif;
+    letter-spacing: 2px;
+}
+
+.title-icon {
+    color: #00f2fe;
+    margin-right: 0.5rem;
+    animation: iconPulse 2s ease-in-out infinite;
+}
+
+@keyframes iconPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.live-indicator.cyber-pulse {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(0, 242, 254, 0.1);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    border: 1px solid rgba(0, 242, 254, 0.2);
+    position: relative;
+}
+
+.pulse-ring {
+    position: absolute;
+    left: 12px;
+    width: 8px;
+    height: 8px;
+    border: 1px solid #00f2fe;
+    border-radius: 50%;
+    animation: pulseRing 1.5s ease-out infinite;
+}
+
+@keyframes pulseRing {
+    0% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(2.5); opacity: 0; }
+}
+
+.pulse-dot {
+    width: 8px;
+    height: 8px;
+    background: #00f2fe;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #00f2fe;
+}
+
+.status-text {
+    font-family: 'Orbitron', 'Inter', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+    color: #00f2fe;
+}
+
+.cyber-btn-refresh {
+    background: transparent;
+    border: 1px solid rgba(0, 242, 254, 0.3);
+    color: #00f2fe;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    font-family: 'Orbitron', 'Inter', sans-serif;
+    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.cyber-btn-refresh:hover {
+    background: rgba(0, 242, 254, 0.1);
+    border-color: #00f2fe;
+}
+
+.stat-card.cyber-card {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, rgba(18, 18, 26, 0.9) 0%, rgba(10, 10, 15, 0.95) 100%);
+}
+
+.card-glow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    opacity: 0.8;
+}
+
+.card-glow.blue { background: linear-gradient(90deg, transparent, #00f2fe, transparent); }
+.card-glow.orange { background: linear-gradient(90deg, transparent, #ff9f43, transparent); }
+.card-glow.red { background: linear-gradient(90deg, transparent, #ff4757, transparent); }
+.card-glow.green { background: linear-gradient(90deg, transparent, #00d26a, transparent); }
+
+.stat-card.cyber-card.critical {
+    animation: criticalPulse 2s ease-in-out infinite;
+}
+
+@keyframes criticalPulse {
+    0%, 100% { box-shadow: 0 0 0 rgba(255, 71, 87, 0); }
+    50% { box-shadow: 0 0 20px rgba(255, 71, 87, 0.2); }
+}
+
+.stat-icon .icon-pulse {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+    animation: iconPulseBg 3s ease-in-out infinite;
+}
+
+@keyframes iconPulseBg {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(0, 242, 254, 0.3); }
+    50% { box-shadow: 0 0 15px 5px rgba(0, 242, 254, 0.1); }
+}
+
+.cyber-number {
+    font-family: 'Orbitron', 'Inter', sans-serif;
+    background: linear-gradient(135deg, #fff 0%, #a0a0a0 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.accuracy-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.accuracy-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #00d26a, #00f2fe);
+    transition: width 1s ease;
+}
+
+.threat-indicator {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 8px;
+    height: 8px;
+    background: #ff4757;
+    border-radius: 50%;
+    animation: threatBlink 1s infinite;
+}
+
+@keyframes threatBlink {
+    0%, 100% { opacity: 1; box-shadow: 0 0 10px #ff4757; }
+    50% { opacity: 0.5; box-shadow: 0 0 5px #ff4757; }
+}
+
+.cyber-panel {
+    position: relative;
+    background: linear-gradient(135deg, rgba(18, 18, 26, 0.95) 0%, rgba(10, 10, 15, 0.98) 100%);
+    border: 1px solid rgba(0, 242, 254, 0.1);
+}
+
+.panel-border {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0, 242, 254, 0.5), transparent);
+}
+
+.cyber-panel .card-header h3 {
+    font-family: 'Orbitron', 'Inter', sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+}
+
+.header-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background: rgba(0, 242, 254, 0.1);
+    border-radius: 5px;
+    margin-right: 0.5rem;
+    color: #00f2fe;
+}
+
+.header-icon.alert-icon {
+    background: rgba(255, 159, 67, 0.1);
+    color: #ff9f43;
+}
+
+.cyber-select {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(0, 242, 254, 0.2);
+    color: #00f2fe;
+    padding: 0.4rem 1rem;
+    border-radius: 4px;
+    font-family: 'Orbitron', 'Inter', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+    cursor: pointer;
+}
+
+.cyber-link {
+    font-family: 'Orbitron', 'Inter', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+    color: #00f2fe;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.cyber-link:hover {
+    text-shadow: 0 0 10px #00f2fe;
+}
+
+.panel-status {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 0.5rem 1rem;
+    background: rgba(0, 0, 0, 0.2);
+    border-top: 1px solid rgba(0, 242, 254, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.65rem;
+    color: #666;
+    letter-spacing: 1px;
+}
+
+.status-indicator {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+.status-indicator.online {
+    background: #00f2fe;
+    box-shadow: 0 0 8px #00f2fe;
+    animation: statusPulse 2s infinite;
+}
+
+@keyframes statusPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.cyber-alert {
+    position: relative;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+    padding: 0.75rem;
+    padding-left: 0.5rem;
+    border: 1px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.cyber-alert:hover {
+    border-color: rgba(0, 242, 254, 0.2);
+    background: rgba(0, 242, 254, 0.05);
+}
+
+.alert-severity-bar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    border-radius: 3px 0 0 3px;
+}
+
+.cyber-alert.critical .alert-severity-bar { background: #ff4757; }
+.cyber-alert.high .alert-severity-bar { background: #ff9f43; }
+.cyber-alert.medium .alert-severity-bar { background: #ffc107; }
+.cyber-alert.low .alert-severity-bar { background: #00d26a; }
+
+.ip-tag {
+    font-family: 'Courier New', monospace;
+    font-size: 0.8rem;
+    color: #00f2fe;
+}
+
+.time-tag {
+    font-family: 'Courier New', monospace;
+    font-size: 0.8rem;
+    color: #666;
+}
+
+.cyber-badge {
+    font-family: 'Orbitron', 'Inter', sans-serif;
+    font-size: 0.6rem;
+    letter-spacing: 1px;
+    padding: 0.3rem 0.6rem;
+    border-radius: 3px;
+}
+
+.cyber-badge.critical { background: rgba(255, 71, 87, 0.2); color: #ff4757; border: 1px solid rgba(255, 71, 87, 0.3); }
+.cyber-badge.high { background: rgba(255, 159, 67, 0.2); color: #ff9f43; border: 1px solid rgba(255, 159, 67, 0.3); }
+.cyber-badge.medium { background: rgba(255, 193, 7, 0.2); color: #ffc107; border: 1px solid rgba(255, 193, 7, 0.3); }
+.cyber-badge.low { background: rgba(0, 210, 106, 0.2); color: #00d26a; border: 1px solid rgba(0, 210, 106, 0.3); }
+
+.cyber-empty {
+    text-align: center;
+    padding: 2rem;
+}
+
+.cyber-empty .shield-icon {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 1rem;
+}
+
+.cyber-empty .shield-icon i {
+    font-size: 3rem;
+    color: #00f2fe;
+}
+
+.shield-pulse {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60px;
+    height: 60px;
+    border: 1px solid rgba(0, 242, 254, 0.3);
+    border-radius: 50%;
+    animation: shieldPulseAnim 2s ease-out infinite;
+}
+
+@keyframes shieldPulseAnim {
+    0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
+}
+
+.cyber-empty p {
+    font-family: 'Orbitron', 'Inter', sans-serif;
+    color: #00f2fe;
+    letter-spacing: 2px;
+    margin: 0;
+}
+
+.cyber-empty .sub-text {
+    display: block;
+    font-size: 0.8rem;
+    color: #666;
+    margin-top: 0.5rem;
+}
+
+.cyber-ip {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+    position: relative;
+}
+
+.ip-rank {
+    font-family: 'Orbitron', 'Inter', sans-serif;
+    font-size: 0.7rem;
+    color: #666;
+    min-width: 25px;
+}
+
+.ip-address {
+    font-family: 'Courier New', monospace;
+    color: #fff;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.ip-icon {
+    color: #ff4757;
+    font-size: 0.6rem;
+}
+
+.ip-count {
+    text-align: right;
+}
+
+.count-value {
+    font-family: 'Orbitron', 'Inter', sans-serif;
+    color: #ff4757;
+    font-size: 0.9rem;
+}
+
+.count-label {
+    font-size: 0.7rem;
+    color: #666;
+    margin-left: 0.25rem;
+}
+
+.threat-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.threat-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #ff4757, #ff6b7a);
+}
+
+.cyber-status .status-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.cyber-status .status-label {
+    flex: 1;
+    color: #a0a0a0;
+    font-size: 0.85rem;
+}
+
+.cyber-status .status-badge {
+    font-family: 'Orbitron', 'Inter', sans-serif;
+    font-size: 0.6rem;
+    letter-spacing: 1px;
+    padding: 0.3rem 0.6rem;
+    border-radius: 3px;
+    background: rgba(0, 242, 254, 0.1);
+    color: #00f2fe;
+    border: 1px solid rgba(0, 242, 254, 0.2);
+}
+
+.system-uptime {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 0.5rem 1rem;
+    background: rgba(0, 210, 106, 0.05);
+    border-top: 1px solid rgba(0, 210, 106, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.uptime-label {
+    font-size: 0.65rem;
+    color: #666;
+    letter-spacing: 1px;
+}
+
+.uptime-value {
+    font-family: 'Orbitron', 'Inter', sans-serif;
+    font-size: 0.85rem;
+    color: #00d26a;
+}
+
+.system-panel {
+    padding-bottom: 2.5rem;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+<script>
+    // Initialize dashboard
+    let trafficChart, attackChart, severityChart;
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        initTrafficChart();
+        initAttackChart();
+        initSeverityChart();
+        
+        // Auto-refresh every 30 seconds
+        setInterval(refreshDashboard, 30000);
+    });
+    
+    // Traffic Chart
+    function initTrafficChart() {
+        const ctx = document.getElementById('trafficChart');
+        if (!ctx) return;
+        
+        const trafficData = {{ traffic_data | tojson | safe if traffic_data else '{"labels":[],"flows":[]}' }};
+        
+        trafficChart = new Chart(ctx.getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: trafficData.labels || [],
+                datasets: [{
+                    label: 'Network Flows',
+                    data: trafficData.flows || [],
+                    borderColor: '#00f2fe',
+                    backgroundColor: 'rgba(0, 242, 254, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 0,
+                    pointHoverRadius: 6,
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: {
+                        grid: { color: 'rgba(0, 242, 254, 0.05)' },
+                        ticks: { color: '#666', font: { family: 'Orbitron', size: 9 }, maxRotation: 45 }
+                    },
+                    y: {
+                        grid: { color: 'rgba(0, 242, 254, 0.05)' },
+                        ticks: { color: '#666', font: { family: 'Orbitron', size: 9 } },
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+    
+    // Attack Distribution Chart
+    function initAttackChart() {
+        const ctx = document.getElementById('attackChart');
+        if (!ctx) return;
+        
+        const attackData = {{ attack_distribution | tojson | safe if attack_distribution else '{"labels":[],"values":[]}' }};
+        
+        // If no data, show placeholder
+        if (!attackData.labels || attackData.labels.length === 0) {
+            ctx.parentElement.innerHTML = `
+                <div class="empty-chart-state">
+                    <i class="bi bi-shield-check" style="font-size: 3rem; color: #00d26a;"></i>
+                    <p style="color: #a0a0a0; margin-top: 1rem;">No attacks detected</p>
+                    <span style="color: #666; font-size: 0.8rem;">Your network is secure</span>
+                </div>
+            `;
+            return;
+        }
+        
+        attackChart = new Chart(ctx.getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: attackData.labels,
+                datasets: [{
+                    data: attackData.values,
+                    backgroundColor: [
+                        '#ff4757', '#ff9f43', '#ffc107', '#00d26a', '#00f2fe', '#a55eea', '#5f27cd', '#1dd1a1'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { 
+                            color: '#a0a0a0', 
+                            padding: 15,
+                            font: { family: 'Orbitron', size: 9 }
+                        }
+                    }
+                },
+                cutout: '65%'
+            }
+        });
+    }
+    
+    // Severity Chart
+    function initSeverityChart() {
+        const ctx = document.getElementById('severityChart');
+        if (!ctx) return;
+        
+        const severityData = {{ severity_data | tojson | safe if severity_data else '{"labels":["CRITICAL","HIGH","MEDIUM","LOW","INFO"],"values":[0,0,0,0,0]}' }};
+        
+        severityChart = new Chart(ctx.getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: severityData.labels || ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW', 'INFO'],
+                datasets: [{
+                    data: severityData.values || [0, 0, 0, 0, 0],
+                    backgroundColor: ['#ff4757', '#ff9f43', '#ffc107', '#00d26a', '#00f2fe'],
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { 
+                        grid: { display: false }, 
+                        ticks: { color: '#666', font: { family: 'Orbitron', size: 8 } } 
+                    },
+                    y: { 
+                        grid: { color: 'rgba(0, 242, 254, 0.05)' }, 
+                        ticks: { color: '#666', font: { family: 'Orbitron', size: 9 } },
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+    
+    // Refresh Dashboard - SYNC BUTTON
+    function refreshDashboard() {
+        const syncBtn = document.querySelector('.cyber-btn-refresh');
+        if (syncBtn) {
+            syncBtn.classList.add('syncing');
+            syncBtn.innerHTML = '<i class="bi bi-arrow-repeat spinning"></i><span>SYNCING...</span>';
+        }
+        
+        fetch('/dashboard/sync')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update stats
+                    document.getElementById('total-flows').textContent = data.stats.total_flows.toLocaleString();
+                    document.getElementById('total-alerts').textContent = data.stats.total_alerts.toLocaleString();
+                    document.getElementById('critical-alerts').textContent = data.stats.critical_alerts.toLocaleString();
+                    document.getElementById('detection-rate').textContent = data.stats.detection_rate + '%';
+                    
+                    // Update accuracy bar
+                    const accBar = document.getElementById('accuracy-bar');
+                    if (accBar) accBar.style.width = data.stats.detection_rate + '%';
+                    
+                    // Update traffic chart
+                    if (trafficChart && data.traffic_data) {
+                        trafficChart.data.labels = data.traffic_data.labels;
+                        trafficChart.data.datasets[0].data = data.traffic_data.flows;
+                        trafficChart.update();
+                    }
+                    
+                    // Update severity chart
+                    if (severityChart && data.severity_data) {
+                        severityChart.data.datasets[0].data = data.severity_data.values;
+                        severityChart.update();
+                    }
+                    
+                    // Show success feedback
+                    showToast('Dashboard synchronized', 'success');
+                }
+            })
+            .catch(err => {
+                console.error('Sync error:', err);
+                showToast('Sync failed', 'error');
+            })
+            .finally(() => {
+                if (syncBtn) {
+                    syncBtn.classList.remove('syncing');
+                    syncBtn.innerHTML = '<i class="bi bi-arrow-clockwise"></i><span>SYNC</span>';
+                }
+            });
+    }
+    
+    function updateTrafficChart() {
+        const hours = document.getElementById('traffic-range').value;
+        fetch(`/dashboard/traffic?hours=${hours}`)
+            .then(response => response.json())
+            .then(data => {
+                if (trafficChart) {
+                    trafficChart.data.labels = data.labels;
+                    trafficChart.data.datasets[0].data = data.flows;
+                    trafficChart.update();
+                }
+            });
+    }
+    
+    function showToast(message, type) {
+        const toast = document.createElement('div');
+        toast.className = `cyber-toast ${type}`;
+        toast.innerHTML = `<i class="bi bi-${type === 'success' ? 'check-circle' : 'x-circle'}"></i> ${message}`;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => toast.classList.add('show'), 10);
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+</script>
+
+<style>
+.cyber-btn-refresh.syncing { opacity: 0.7; pointer-events: none; }
+.spinning { animation: spin 1s linear infinite; }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+.cyber-toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 1rem 1.5rem;
+    background: rgba(18, 18, 26, 0.95);
+    border: 1px solid rgba(0, 242, 254, 0.3);
+    border-radius: 8px;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.3s ease;
+    z-index: 9999;
+}
+.cyber-toast.show { transform: translateY(0); opacity: 1; }
+.cyber-toast.success { border-color: #00d26a; }
+.cyber-toast.success i { color: #00d26a; }
+.cyber-toast.error { border-color: #ff4757; }
+.cyber-toast.error i { color: #ff4757; }
+
+.empty-chart-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    text-align: center;
+}
+</style>
+{% endblock %}

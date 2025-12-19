@@ -1,0 +1,101 @@
+{
+  "threat_intel_version": "1.0.0",
+  "last_updated": "2024-12-09T12:00:00Z",
+  "source": "AI-NIDS Threat Intelligence",
+  
+  "malicious_ips": [
+    {
+      "ip": "185.220.101.42",
+      "threat_type": "DDoS Botnet",
+      "confidence": 0.98,
+      "first_seen": "2024-11-01",
+      "country": "RU",
+      "tags": ["botnet", "ddos", "tor_exit"]
+    },
+    {
+      "ip": "45.33.32.156",
+      "threat_type": "SSH Brute Force",
+      "confidence": 0.95,
+      "first_seen": "2024-10-15",
+      "country": "NL",
+      "tags": ["brute_force", "ssh", "scanner"]
+    },
+    {
+      "ip": "89.248.165.12",
+      "threat_type": "Port Scanner",
+      "confidence": 0.92,
+      "first_seen": "2024-11-20",
+      "country": "UA",
+      "tags": ["scanner", "reconnaissance"]
+    },
+    {
+      "ip": "104.244.72.115",
+      "threat_type": "C2 Server",
+      "confidence": 0.97,
+      "first_seen": "2024-09-05",
+      "country": "US",
+      "tags": ["c2", "malware", "ransomware"]
+    },
+    {
+      "ip": "171.25.193.20",
+      "threat_type": "Tor Exit Node",
+      "confidence": 0.99,
+      "first_seen": "2024-08-01",
+      "country": "SE",
+      "tags": ["tor", "anonymous", "proxy"]
+    }
+  ],
+  
+  "attack_signatures": [
+    {
+      "id": "SIG-001",
+      "name": "DDoS SYN Flood",
+      "description": "High volume of SYN packets indicating flood attack",
+      "mitre_tactic": "T1498",
+      "severity": "critical"
+    },
+    {
+      "id": "SIG-002", 
+      "name": "SSH Brute Force",
+      "description": "Multiple failed SSH authentication attempts",
+      "mitre_tactic": "T1110",
+      "severity": "high"
+    },
+    {
+      "id": "SIG-003",
+      "name": "Port Scan Detection",
+      "description": "Sequential port probing from single source",
+      "mitre_tactic": "T1046",
+      "severity": "medium"
+    },
+    {
+      "id": "SIG-004",
+      "name": "Data Exfiltration",
+      "description": "Unusual large outbound data transfer",
+      "mitre_tactic": "T1048",
+      "severity": "critical"
+    },
+    {
+      "id": "SIG-005",
+      "name": "C2 Beacon Detection",
+      "description": "Regular interval callbacks to suspicious host",
+      "mitre_tactic": "T1071",
+      "severity": "critical"
+    }
+  ],
+  
+  "mitre_attack_mapping": {
+    "T1498": {"name": "Network Denial of Service", "tactic": "Impact"},
+    "T1110": {"name": "Brute Force", "tactic": "Credential Access"},
+    "T1046": {"name": "Network Service Scanning", "tactic": "Discovery"},
+    "T1048": {"name": "Exfiltration Over Alternative Protocol", "tactic": "Exfiltration"},
+    "T1071": {"name": "Application Layer Protocol", "tactic": "Command and Control"},
+    "T1190": {"name": "Exploit Public-Facing Application", "tactic": "Initial Access"},
+    "T1204": {"name": "User Execution", "tactic": "Execution"},
+    "T1566": {"name": "Phishing", "tactic": "Initial Access"},
+    "T1068": {"name": "Exploitation for Privilege Escalation", "tactic": "Privilege Escalation"},
+    "T1021": {"name": "Remote Services", "tactic": "Lateral Movement"},
+    "T1486": {"name": "Data Encrypted for Impact", "tactic": "Impact"},
+    "T1496": {"name": "Resource Hijacking", "tactic": "Impact"}
+  }
+}

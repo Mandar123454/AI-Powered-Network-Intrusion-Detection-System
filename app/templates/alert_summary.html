@@ -1,0 +1,378 @@
+{% extends "base.html" %}
+
+{% block title %}Alert Summary{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">
+            <i class="bi bi-pie-chart text-primary"></i>
+            Alert Summary
+        </h1>
+        <p class="page-subtitle">Comprehensive overview of security alerts and threat intelligence</p>
+    </div>
+    <div class="header-actions">
+        <a href="{{ url_for('alerts.alert_list') }}" class="btn btn-outline-primary">
+            <i class="bi bi-list me-2"></i>View All Alerts
+        </a>
+        <a href="{{ url_for('analytics.export_data', data_type='alerts', days=30) }}" class="btn btn-export">
+            <i class="bi bi-download me-2"></i>Export Report
+        </a>
+    </div>
+</div>
+
+<!-- Today's Stats -->
+<div class="stats-grid mb-4">
+    <div class="stat-card cyber-glow">
+        <div class="stat-icon blue">
+            <i class="bi bi-bell-fill"></i>
+        </div>
+        <div class="stat-content">
+            <h3 class="cyber-number">{{ today_stats.total }}</h3>
+            <p>Today's Alerts</p>
+        </div>
+        <div class="stat-sparkline">
+            <div class="mini-bar" style="height: 100%;"></div>
+        </div>
+    </div>
+    
+    <div class="stat-card cyber-glow critical">
+        <div class="stat-icon red">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+        </div>
+        <div class="stat-content">
+            <h3 class="cyber-number text-danger">{{ today_stats.critical }}</h3>
+            <p>Critical Alerts</p>
+        </div>
+    </div>
+    
+    <div class="stat-card cyber-glow">
+        <div class="stat-icon orange">
+            <i class="bi bi-shield-exclamation"></i>
+        </div>
+        <div class="stat-content">
+            <h3 class="cyber-number text-warning">{{ today_stats.high }}</h3>
+            <p>High Severity</p>
+        </div>
+    </div>
+    
+    <div class="stat-card cyber-glow">
+        <div class="stat-icon purple">
+            <i class="bi bi-hourglass-split"></i>
+        </div>
+        <div class="stat-content">
+            <h3 class="cyber-number">{{ today_stats.unacknowledged }}</h3>
+            <p>Pending Review</p>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Weekly Trend Chart -->
+    <div class="col-lg-8 mb-4">
+        <div class="cyber-card h-100">
+            <div class="card-header">
+                <h3><i class="bi bi-graph-up me-2"></i>Weekly Alert Trend</h3>
+            </div>
+            <div class="card-body">
+                <canvas id="weeklyTrendChart" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Attack Type Breakdown -->
+    <div class="col-lg-4 mb-4">
+        <div class="cyber-card h-100">
+            <div class="card-header">
+                <h3><i class="bi bi-pie-chart me-2"></i>Attack Types</h3>
+            </div>
+            <div class="card-body">
+                <canvas id="attackTypeChart" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Top Threat Sources -->
+    <div class="col-lg-6 mb-4">
+        <div class="cyber-card">
+            <div class="card-header">
+                <h3><i class="bi bi-geo-alt me-2"></i>Top Threat Sources</h3>
+            </div>
+            <div class="card-body p-0">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Source IP</th>
+                            <th>Alert Count</th>
+                            <th>Threat Level</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for source in top_sources %}
+                        <tr>
+                            <td>
+                                <span class="rank-badge {% if loop.index <= 3 %}top-3{% endif %}">
+                                    {{ loop.index }}
+                                </span>
+                            </td>
+                            <td>
+                                <code class="ip-address">{{ source.ip }}</code>
+                            </td>
+                            <td>
+                                <span class="badge bg-primary">{{ source.count }}</span>
+                            </td>
+                            <td>
+                                {% if source.count >= 20 %}
+                                <span class="threat-level critical">
+                                    <i class="bi bi-circle-fill"></i> Critical
+                                </span>
+                                {% elif source.count >= 10 %}
+                                <span class="threat-level high">
+                                    <i class="bi bi-circle-fill"></i> High
+                                </span>
+                                {% elif source.count >= 5 %}
+                                <span class="threat-level medium">
+                                    <i class="bi bi-circle-fill"></i> Medium
+                                </span>
+                                {% else %}
+                                <span class="threat-level low">
+                                    <i class="bi bi-circle-fill"></i> Low
+                                </span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center py-4 text-muted">
+                                <i class="bi bi-shield-check fs-1 d-block mb-2"></i>
+                                No threat sources detected
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Attack Breakdown List -->
+    <div class="col-lg-6 mb-4">
+        <div class="cyber-card">
+            <div class="card-header">
+                <h3><i class="bi bi-bug me-2"></i>Attack Distribution</h3>
+            </div>
+            <div class="card-body">
+                {% for attack in attack_breakdown %}
+                <div class="attack-item mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="attack-name">{{ attack.type }}</span>
+                        <span class="attack-count">{{ attack.count }}</span>
+                    </div>
+                    <div class="progress attack-progress">
+                        {% set max_count = attack_breakdown[0].count if attack_breakdown else 1 %}
+                        <div class="progress-bar" style="width: {{ (attack.count / max_count * 100)|round }}%"></div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="text-center py-4 text-muted">
+                    <i class="bi bi-shield-check fs-1 d-block mb-2"></i>
+                    No attacks detected
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.cyber-glow {
+    position: relative;
+    overflow: hidden;
+}
+
+.cyber-glow::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(13, 110, 253, 0.1), transparent);
+    animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+.cyber-number {
+    font-family: 'Orbitron', 'Consolas', monospace;
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.rank-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--bg-hover);
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.rank-badge.top-3 {
+    background: linear-gradient(135deg, #ffd700, #ff8c00);
+    color: #000;
+}
+
+.ip-address {
+    background: var(--bg-dark);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+}
+
+.threat-level {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.threat-level i {
+    font-size: 0.5rem;
+}
+
+.threat-level.critical { color: #dc3545; }
+.threat-level.high { color: #fd7e14; }
+.threat-level.medium { color: #ffc107; }
+.threat-level.low { color: #198754; }
+
+.attack-progress {
+    height: 8px;
+    background: var(--bg-dark);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.attack-progress .progress-bar {
+    background: linear-gradient(90deg, var(--primary), var(--purple));
+    border-radius: 4px;
+}
+
+.attack-name {
+    font-weight: 500;
+}
+
+.attack-count {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.table {
+    color: var(--text-primary);
+}
+
+.table thead th {
+    background: var(--bg-dark);
+    border-color: var(--border-color);
+    color: var(--text-secondary);
+    font-weight: 500;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    padding: 1rem;
+}
+
+.table tbody td {
+    border-color: var(--border-color);
+    padding: 0.75rem 1rem;
+    vertical-align: middle;
+}
+
+.table tbody tr:hover {
+    background: var(--bg-hover);
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Weekly Trend Chart
+const weeklyData = {{ weekly_data | tojson }};
+const weeklyCtx = document.getElementById('weeklyTrendChart').getContext('2d');
+new Chart(weeklyCtx, {
+    type: 'line',
+    data: {
+        labels: weeklyData.map(d => d.date),
+        datasets: [{
+            label: 'Alerts',
+            data: weeklyData.map(d => d.count),
+            borderColor: '#0d6efd',
+            backgroundColor: 'rgba(13, 110, 253, 0.1)',
+            fill: true,
+            tension: 0.4,
+            pointRadius: 6,
+            pointHoverRadius: 8,
+            pointBackgroundColor: '#0d6efd'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false }
+        },
+        scales: {
+            x: { 
+                grid: { color: 'rgba(255,255,255,0.05)' }, 
+                ticks: { color: '#a0a0a0' } 
+            },
+            y: { 
+                grid: { color: 'rgba(255,255,255,0.05)' }, 
+                ticks: { color: '#a0a0a0' },
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+// Attack Type Chart
+const attackData = {{ attack_breakdown | tojson }};
+const attackCtx = document.getElementById('attackTypeChart').getContext('2d');
+new Chart(attackCtx, {
+    type: 'doughnut',
+    data: {
+        labels: attackData.map(d => d.type),
+        datasets: [{
+            data: attackData.map(d => d.count),
+            backgroundColor: [
+                '#dc3545', '#fd7e14', '#ffc107', '#198754', 
+                '#0d6efd', '#6f42c1', '#20c997', '#e83e8c'
+            ],
+            borderWidth: 0
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: { 
+                    color: '#a0a0a0',
+                    padding: 15,
+                    usePointStyle: true
+                }
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-NIDS API v1</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0a0a0f;
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        .bg-grid {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-image: 
+                linear-gradient(rgba(13, 110, 253, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(13, 110, 253, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 20s linear infinite;
+            z-index: 0;
+        }
+        @keyframes gridMove { 0% { transform: translate(0, 0); } 100% { transform: translate(50px, 50px); } }
+        .particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+        .particle {
+            position: absolute; width: 4px; height: 4px;
+            background: #0d6efd; border-radius: 50%; opacity: 0.5;
+            animation: float 15s infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.5; } 90% { opacity: 0.5; }
+            100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
+        }
+        .container { position: relative; z-index: 10; max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        
+        /* Header */
+        .header { text-align: center; margin-bottom: 3rem; }
+        .logo { display: inline-flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+        .logo-icon {
+            width: 70px; height: 70px;
+            background: linear-gradient(135deg, #0d6efd 0%, #6f42c1 100%);
+            border-radius: 18px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2rem;
+            animation: pulse 2s ease-in-out infinite;
+            box-shadow: 0 0 60px rgba(13, 110, 253, 0.3);
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 60px rgba(13, 110, 253, 0.3); }
+            50% { transform: scale(1.05); box-shadow: 0 0 80px rgba(13, 110, 253, 0.5); }
+        }
+        .logo-text h1 {
+            font-size: 2rem; font-weight: 700;
+            background: linear-gradient(135deg, #fff 0%, #a0a0a0 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .logo-text span { font-size: 0.9rem; color: #0d6efd; font-weight: 500; }
+        .status-badge {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            padding: 0.4rem 1rem;
+            background: rgba(25, 135, 84, 0.15);
+            border: 1px solid rgba(25, 135, 84, 0.3);
+            border-radius: 50px; color: #198754; font-size: 0.85rem; font-weight: 500;
+        }
+        .status-dot { width: 8px; height: 8px; background: #198754; border-radius: 50%; animation: blink 1s ease-in-out infinite; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        
+        /* Stats */
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; }
+        .stat-card {
+            background: rgba(18, 18, 26, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px; padding: 1.25rem; text-align: center;
+            transition: all 0.3s ease;
+        }
+        .stat-card:hover { border-color: #0d6efd; transform: translateY(-2px); }
+        .stat-value {
+            font-size: 1.75rem; font-weight: 700;
+            background: linear-gradient(135deg, #0d6efd 0%, #6f42c1 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .stat-label { color: #a0a0a0; font-size: 0.8rem; margin-top: 0.25rem; }
+        
+        /* Section */
+        .section-title {
+            font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem;
+            display: flex; align-items: center; gap: 0.75rem;
+        }
+        .section-title::before {
+            content: ''; width: 4px; height: 20px;
+            background: linear-gradient(180deg, #0d6efd, #6f42c1); border-radius: 2px;
+        }
+        
+        /* API Tester */
+        .api-tester {
+            background: rgba(18, 18, 26, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px; overflow: hidden; margin-bottom: 2rem;
+        }
+        .tester-tabs {
+            display: flex; background: rgba(0,0,0,0.3);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            overflow-x: auto;
+        }
+        .tester-tab {
+            padding: 0.75rem 1.25rem; cursor: pointer;
+            color: #a0a0a0; font-size: 0.9rem; border: none; background: none;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s ease; white-space: nowrap;
+        }
+        .tester-tab:hover { color: #fff; }
+        .tester-tab.active { color: #0d6efd; border-bottom-color: #0d6efd; background: rgba(13, 110, 253, 0.05); }
+        .tester-content { padding: 1.5rem; }
+        .tester-panel { display: none; }
+        .tester-panel.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .endpoint-info {
+            display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+            padding: 1rem; background: rgba(0,0,0,0.3); border-radius: 8px; margin-bottom: 1rem;
+        }
+        .method-badge {
+            padding: 0.35rem 0.75rem; border-radius: 6px;
+            font-size: 0.75rem; font-weight: 600;
+            font-family: 'JetBrains Mono', monospace; text-transform: uppercase;
+        }
+        .method-get { background: rgba(25, 135, 84, 0.2); color: #198754; }
+        .method-post { background: rgba(253, 126, 20, 0.2); color: #fd7e14; }
+        .endpoint-url {
+            font-family: 'JetBrains Mono', monospace; font-size: 0.95rem;
+            color: #a5d6ff; flex: 1;
+        }
+        .run-btn {
+            padding: 0.5rem 1.5rem; border-radius: 8px;
+            background: linear-gradient(135deg, #0d6efd, #6f42c1);
+            color: #fff; border: none; font-weight: 600; cursor: pointer;
+            transition: all 0.2s ease; display: flex; align-items: center; gap: 0.5rem;
+        }
+        .run-btn:hover { transform: scale(1.05); box-shadow: 0 0 30px rgba(13, 110, 253, 0.4); }
+        .run-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .run-btn .spinner { display: none; animation: spin 1s linear infinite; }
+        .run-btn.loading .spinner { display: inline-block; }
+        .run-btn.loading .play-icon { display: none; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        
+        .response-area {
+            background: #0d0d12; border-radius: 8px; margin-top: 1rem;
+            border: 1px solid rgba(255,255,255,0.05); overflow: hidden;
+        }
+        .response-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0.75rem 1rem; background: rgba(255,255,255,0.02);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .response-status { display: flex; align-items: center; gap: 0.75rem; font-size: 0.85rem; }
+        .status-code { padding: 0.25rem 0.5rem; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-weight: 600; }
+        .status-2xx { background: rgba(25, 135, 84, 0.2); color: #198754; }
+        .status-4xx { background: rgba(255, 193, 7, 0.2); color: #ffc107; }
+        .status-5xx { background: rgba(220, 53, 69, 0.2); color: #dc3545; }
+        .response-time { color: #a0a0a0; font-size: 0.8rem; }
+        .response-body {
+            padding: 1rem; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;
+            line-height: 1.6; max-height: 300px; overflow-y: auto; white-space: pre-wrap;
+        }
+        .response-body.empty { color: #666; font-style: italic; }
+        
+        /* JSON Syntax */
+        .json-key { color: #79c0ff; }
+        .json-string { color: #a5d6ff; }
+        .json-number { color: #f2cc60; }
+        .json-boolean { color: #ff79c6; }
+        .json-null { color: #ff79c6; }
+        
+        /* Endpoints Grid */
+        .endpoints-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+        .endpoint-card {
+            background: rgba(18, 18, 26, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px; padding: 1.25rem;
+            transition: all 0.3s ease; cursor: pointer;
+        }
+        .endpoint-card:hover { border-color: #0d6efd; transform: translateY(-2px); }
+        .endpoint-card .endpoint-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; }
+        .endpoint-card .endpoint-path { font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; color: #fff; }
+        .endpoint-card .endpoint-description { color: #a0a0a0; font-size: 0.85rem; margin-bottom: 0.75rem; line-height: 1.4; }
+        .endpoint-auth { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.75rem; padding: 0.2rem 0.5rem; border-radius: 4px; }
+        .auth-login { background: rgba(13, 110, 253, 0.15); color: #0d6efd; }
+        .auth-key { background: rgba(255, 193, 7, 0.15); color: #ffc107; }
+        
+        /* Footer */
+        .footer { text-align: center; padding-top: 1.5rem; border-top: 1px solid rgba(255, 255, 255, 0.08); }
+        .footer-links { display: flex; justify-content: center; gap: 2rem; margin-bottom: 0.75rem; flex-wrap: wrap; }
+        .footer-links a { color: #a0a0a0; text-decoration: none; font-size: 0.85rem; transition: color 0.2s ease; }
+        .footer-links a:hover { color: #0d6efd; }
+        .footer p { color: #666; font-size: 0.8rem; }
+        
+        @media (max-width: 768px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .endpoints-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-grid"></div>
+    <div class="particles">
+        <div class="particle" style="left: 10%; animation-delay: 0s;"></div>
+        <div class="particle" style="left: 25%; animation-delay: 2s;"></div>
+        <div class="particle" style="left: 40%; animation-delay: 4s;"></div>
+        <div class="particle" style="left: 55%; animation-delay: 1s;"></div>
+        <div class="particle" style="left: 70%; animation-delay: 3s;"></div>
+        <div class="particle" style="left: 85%; animation-delay: 5s;"></div>
+    </div>
+
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">🛡️</div>
+                <div class="logo-text">
+                    <h1>AI-NIDS API</h1>
+                    <span>Version 1.0</span>
+                </div>
+            </div>
+            <div class="status-badge">
+                <span class="status-dot"></span>
+                All Systems Operational
+            </div>
+        </header>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="uptime">99.9%</div>
+                <div class="stat-label">Uptime</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="avg-response">&lt;50ms</div>
+                <div class="stat-label">Avg Response</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">15+</div>
+                <div class="stat-label">Endpoints</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">24/7</div>
+                <div class="stat-label">Monitoring</div>
+            </div>
+        </div>
+
+        <!-- Live API Tester -->
+        <section>
+            <h2 class="section-title">🚀 Live API Tester</h2>
+            <div class="api-tester">
+                <div class="tester-tabs">
+                    <button class="tester-tab active" data-tab="health">Health Check</button>
+                    <button class="tester-tab" data-tab="status">System Status</button>
+                    <button class="tester-tab" data-tab="detect">Detect</button>
+                    <button class="tester-tab" data-tab="stats">Statistics</button>
+                    <button class="tester-tab" data-tab="alerts">Alerts</button>
+                    <button class="tester-tab" data-tab="threat">Threat Intel</button>
+                </div>
+                
+                <div class="tester-content">
+                    <!-- Health Check -->
+                    <div class="tester-panel active" id="panel-health">
+                        <div class="endpoint-info">
+                            <span class="method-badge method-get">GET</span>
+                            <span class="endpoint-url">/api/v1/health</span>
+                            <button class="run-btn" onclick="runTest('health')">
+                                <span class="play-icon">▶</span>
+                                <span class="spinner">⟳</span>
+                                Run
+                            </button>
+                        </div>
+                        <p style="color: #a0a0a0; font-size: 0.9rem; margin-bottom: 1rem;">
+                            Check if the API is running and get version information. No authentication required.
+                        </p>
+                        <div class="response-area" id="response-health">
+                            <div class="response-header">
+                                <div class="response-status">
+                                    <span>Response</span>
+                                    <span class="status-code" id="status-health" style="display: none;"></span>
+                                </div>
+                                <span class="response-time" id="time-health"></span>
+                            </div>
+                            <div class="response-body empty" id="body-health">Click "Run" to test this endpoint</div>
+                        </div>
+                    </div>
+                    
+                    <!-- System Status -->
+                    <div class="tester-panel" id="panel-status">
+                        <div class="endpoint-info">
+                            <span class="method-badge method-get">GET</span>
+                            <span class="endpoint-url">/api/v1/status</span>
+                            <button class="run-btn" onclick="runTest('status')">
+                                <span class="play-icon">▶</span>
+                                <span class="spinner">⟳</span>
+                                Run
+                            </button>
+                        </div>
+                        <p style="color: #a0a0a0; font-size: 0.9rem; margin-bottom: 1rem;">
+                            Get system status including ML models state and database statistics.
+                        </p>
+                        <div class="response-area" id="response-status">
+                            <div class="response-header">
+                                <div class="response-status">
+                                    <span>Response</span>
+                                    <span class="status-code" id="status-status" style="display: none;"></span>
+                                </div>
+                                <span class="response-time" id="time-status"></span>
+                            </div>
+                            <div class="response-body empty" id="body-status">Click "Run" to test this endpoint</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Detect -->
+                    <div class="tester-panel" id="panel-detect">
+                        <div class="endpoint-info">
+                            <span class="method-badge method-post">POST</span>
+                            <span class="endpoint-url">/api/v1/detect</span>
+                            <button class="run-btn" onclick="runDetectTest()">
+                                <span class="play-icon">▶</span>
+                                <span class="spinner">⟳</span>
+                                Run
+                            </button>
+                        </div>
+                        <p style="color: #a0a0a0; font-size: 0.9rem; margin-bottom: 1rem;">
+                            Analyze network flows for intrusion detection using AI models.
+                        </p>
+                        <div style="margin-bottom: 1rem;">
+                            <label style="color: #a0a0a0; font-size: 0.85rem; display: block; margin-bottom: 0.5rem;">Request Body (JSON):</label>
+                            <textarea id="detect-payload" style="width: 100%; height: 120px; background: #1a1a2e; border: 1px solid #333; border-radius: 8px; color: #00f2fe; font-family: 'Fira Code', monospace; font-size: 0.85rem; padding: 0.75rem; resize: vertical;">{
+  "flows": [{
+    "src_ip": "192.168.1.100",
+    "dst_ip": "10.0.0.1",
+    "src_port": 54321,
+    "dst_port": 80,
+    "protocol": "TCP",
+    "duration": 1.5,
+    "bytes_sent": 1024,
+    "bytes_recv": 2048
+  }]
+}</textarea>
+                        </div>
+                        <div class="response-area" id="response-detect">
+                            <div class="response-header">
+                                <div class="response-status">
+                                    <span>Response</span>
+                                    <span class="status-code" id="status-detect" style="display: none;"></span>
+                                </div>
+                                <span class="response-time" id="time-detect"></span>
+                            </div>
+                            <div class="response-body empty" id="body-detect">Click "Run" to test this endpoint</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Statistics -->
+                    <div class="tester-panel" id="panel-stats">
+                        <div class="endpoint-info">
+                            <span class="method-badge method-get">GET</span>
+                            <span class="endpoint-url">/api/v1/stats/dashboard</span>
+                            <button class="run-btn" onclick="runTest('stats')">
+                                <span class="play-icon">▶</span>
+                                <span class="spinner">⟳</span>
+                                Run
+                            </button>
+                        </div>
+                        <p style="color: #a0a0a0; font-size: 0.9rem; margin-bottom: 1rem;">
+                            Dashboard statistics with alert counts, traffic data, and threat metrics.
+                        </p>
+                        <div class="response-area" id="response-stats">
+                            <div class="response-header">
+                                <div class="response-status">
+                                    <span>Response</span>
+                                    <span class="status-code" id="status-stats" style="display: none;"></span>
+                                </div>
+                                <span class="response-time" id="time-stats"></span>
+                            </div>
+                            <div class="response-body empty" id="body-stats">Click "Run" to test this endpoint</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Alerts -->
+                    <div class="tester-panel" id="panel-alerts">
+                        <div class="endpoint-info">
+                            <span class="method-badge method-get">GET</span>
+                            <span class="endpoint-url">/api/v1/alerts?limit=5</span>
+                            <button class="run-btn" onclick="runTest('alerts')">
+                                <span class="play-icon">▶</span>
+                                <span class="spinner">⟳</span>
+                                Run
+                            </button>
+                        </div>
+                        <p style="color: #a0a0a0; font-size: 0.9rem; margin-bottom: 1rem;">
+                            Retrieve recent security alerts with severity and attack information.
+                        </p>
+                        <div class="response-area" id="response-alerts">
+                            <div class="response-header">
+                                <div class="response-status">
+                                    <span>Response</span>
+                                    <span class="status-code" id="status-alerts" style="display: none;"></span>
+                                </div>
+                                <span class="response-time" id="time-alerts"></span>
+                            </div>
+                            <div class="response-body empty" id="body-alerts">Click "Run" to test this endpoint</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Threat Intel -->
+                    <div class="tester-panel" id="panel-threat">
+                        <div class="endpoint-info">
+                            <span class="method-badge method-get">GET</span>
+                            <span class="endpoint-url">/api/v1/threat-intel</span>
+                            <button class="run-btn" onclick="runTest('threat')">
+                                <span class="play-icon">▶</span>
+                                <span class="spinner">⟳</span>
+                                Run
+                            </button>
+                        </div>
+                        <p style="color: #a0a0a0; font-size: 0.9rem; margin-bottom: 1rem;">
+                            Get threat intelligence data including IOCs, threat IPs, and attack distribution.
+                        </p>
+                        <div class="response-area" id="response-threat">
+                            <div class="response-header">
+                                <div class="response-status">
+                                    <span>Response</span>
+                                    <span class="status-code" id="status-threat" style="display: none;"></span>
+                                </div>
+                                <span class="response-time" id="time-threat"></span>
+                            </div>
+                            <div class="response-body empty" id="body-threat">Click "Run" to test this endpoint</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- All Endpoints -->
+        <section>
+            <h2 class="section-title">API Endpoints</h2>
+            <div class="endpoints-grid">
+                <div class="endpoint-card" onclick="switchTab('health')">
+                    <div class="endpoint-header">
+                        <span class="method-badge method-get">GET</span>
+                        <span class="endpoint-path">/api/v1/health</span>
+                    </div>
+                    <p class="endpoint-description">Health check endpoint. Returns system status and version info.</p>
+                    <span class="endpoint-auth" style="background: rgba(25, 135, 84, 0.15); color: #198754;">✓ Public</span>
+                </div>
+                <div class="endpoint-card" onclick="switchTab('status')">
+                    <div class="endpoint-header">
+                        <span class="method-badge method-get">GET</span>
+                        <span class="endpoint-path">/api/v1/status</span>
+                    </div>
+                    <p class="endpoint-description">System status with ML model state and database statistics.</p>
+                    <span class="endpoint-auth" style="background: rgba(25, 135, 84, 0.15); color: #198754;">✓ Public</span>
+                </div>
+                <div class="endpoint-card" onclick="switchTab('detect')">
+                    <div class="endpoint-header">
+                        <span class="method-badge method-post">POST</span>
+                        <span class="endpoint-path">/api/v1/detect</span>
+                    </div>
+                    <p class="endpoint-description">Analyze network traffic for intrusions using AI models.</p>
+                    <span class="endpoint-auth" style="background: rgba(25, 135, 84, 0.15); color: #198754;">✓ Public</span>
+                </div>
+                <div class="endpoint-card" onclick="switchTab('alerts')">
+                    <div class="endpoint-header">
+                        <span class="method-badge method-get">GET</span>
+                        <span class="endpoint-path">/api/v1/alerts</span>
+                    </div>
+                    <p class="endpoint-description">Retrieve security alerts with filtering and pagination.</p>
+                    <span class="endpoint-auth" style="background: rgba(25, 135, 84, 0.15); color: #198754;">✓ Public</span>
+                </div>
+                <div class="endpoint-card" onclick="switchTab('stats')">
+                    <div class="endpoint-header">
+                        <span class="method-badge method-get">GET</span>
+                        <span class="endpoint-path">/api/v1/stats/dashboard</span>
+                    </div>
+                    <p class="endpoint-description">Dashboard statistics and metrics for visualization.</p>
+                    <span class="endpoint-auth" style="background: rgba(25, 135, 84, 0.15); color: #198754;">✓ Public</span>
+                </div>
+                <div class="endpoint-card" onclick="switchTab('threat')">
+                    <div class="endpoint-header">
+                        <span class="method-badge method-get">GET</span>
+                        <span class="endpoint-path">/api/v1/threat-intel</span>
+                    </div>
+                    <p class="endpoint-description">Threat intelligence feed with IOCs and indicators.</p>
+                    <span class="endpoint-auth" style="background: rgba(25, 135, 84, 0.15); color: #198754;">✓ Public</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-links">
+                <a href="/dashboard">📊 Dashboard</a>
+                <a href="/auth/login">🔐 Login</a>
+                <a href="/api/v1/">📖 Documentation</a>
+            </div>
+            <p>AI-NIDS v1.0.0 | Built for Cyber Defense Excellence 🛡️</p>
+        </footer>
+    </div>
+
+    <script>
+        // Tab switching
+        document.querySelectorAll('.tester-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tester-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tester-panel').forEach(p => p.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+            });
+        });
+        
+        function switchTab(tabName) {
+            document.querySelectorAll('.tester-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tester-panel').forEach(p => p.classList.remove('active'));
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+            document.getElementById('panel-' + tabName).classList.add('active');
+            document.querySelector('.api-tester').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        
+        // API endpoints mapping
+        const endpoints = {
+            health: '/api/v1/health',
+            status: '/api/v1/status',
+            stats: '/api/v1/stats/dashboard',
+            alerts: '/api/v1/alerts?limit=5',
+            threat: '/api/v1/threat-intel'
+        };
+        
+        // Run API test
+        async function runTest(endpoint) {
+            const btn = event.target.closest('.run-btn');
+            btn.classList.add('loading');
+            btn.disabled = true;
+            
+            const statusEl = document.getElementById('status-' + endpoint);
+            const timeEl = document.getElementById('time-' + endpoint);
+            const bodyEl = document.getElementById('body-' + endpoint);
+            
+            bodyEl.textContent = 'Loading...';
+            bodyEl.classList.remove('empty');
+            
+            const startTime = performance.now();
+            
+            try {
+                const response = await fetch(endpoints[endpoint]);
+                const endTime = performance.now();
+                const duration = Math.round(endTime - startTime);
+                
+                const data = await response.json();
+                
+                // Update status
+                statusEl.style.display = 'inline-block';
+                statusEl.textContent = response.status;
+                statusEl.className = 'status-code status-' + (response.ok ? '2xx' : response.status >= 500 ? '5xx' : '4xx');
+                
+                // Update time
+                timeEl.textContent = duration + 'ms';
+                
+                // Update avg response in stats
+                if (endpoint === 'health' && duration) {
+                    document.getElementById('avg-response').textContent = duration + 'ms';
+                }
+                
+                // Update body with syntax highlighting
+                bodyEl.innerHTML = syntaxHighlight(JSON.stringify(data, null, 2));
+                
+            } catch (error) {
+                statusEl.style.display = 'inline-block';
+                statusEl.textContent = 'Error';
+                statusEl.className = 'status-code status-5xx';
+                bodyEl.innerHTML = '<span style="color: #dc3545;">Error: ' + error.message + '</span>';
+            }
+            
+            btn.classList.remove('loading');
+            btn.disabled = false;
+        }
+        
+        // JSON Syntax highlighting
+        function syntaxHighlight(json) {
+            json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+                let cls = 'json-number';
+                if (/^"/.test(match)) {
+                    if (/:$/.test(match)) {
+                        cls = 'json-key';
+                    } else {
+                        cls = 'json-string';
+                    }
+                } else if (/true|false/.test(match)) {
+                    cls = 'json-boolean';
+                } else if (/null/.test(match)) {
+                    cls = 'json-null';
+                }
+                return '<span class="' + cls + '">' + match + '</span>';
+            });
+        }
+        
+        // Run Detect POST test
+        async function runDetectTest() {
+            const btn = event.target.closest('.run-btn');
+            btn.classList.add('loading');
+            btn.disabled = true;
+            
+            const statusEl = document.getElementById('status-detect');
+            const timeEl = document.getElementById('time-detect');
+            const bodyEl = document.getElementById('body-detect');
+            const payload = document.getElementById('detect-payload').value;
+            
+            bodyEl.textContent = 'Loading...';
+            bodyEl.classList.remove('empty');
+            
+            const startTime = performance.now();
+            
+            try {
+                const response = await fetch('/api/v1/detect', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: payload
+                });
+                const endTime = performance.now();
+                const duration = Math.round(endTime - startTime);
+                
+                const data = await response.json();
+                
+                statusEl.style.display = 'inline-block';
+                statusEl.textContent = response.status;
+                statusEl.className = 'status-code status-' + (response.ok ? '2xx' : response.status >= 500 ? '5xx' : '4xx');
+                timeEl.textContent = duration + 'ms';
+                bodyEl.innerHTML = syntaxHighlight(JSON.stringify(data, null, 2));
+                
+            } catch (error) {
+                statusEl.style.display = 'inline-block';
+                statusEl.textContent = 'Error';
+                statusEl.className = 'status-code status-5xx';
+                bodyEl.innerHTML = '<span style="color: #dc3545;">Error: ' + error.message + '</span>';
+            }
+            
+            btn.classList.remove('loading');
+            btn.disabled = false;
+        }
+        
+        // Auto-run health check on load
+        setTimeout(() => {
+            runTest('health');
+        }, 500);
+    </script>
+</body>
+</html>

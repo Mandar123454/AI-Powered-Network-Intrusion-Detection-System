@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>401 - Access Shield Active | AI-NIDS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body>
+<div class="cyber-error-container error-401">
+    <!-- Security Field -->
+    <div class="security-field"></div>
+    <div class="hex-grid"></div>
+    
+    <!-- Scanning Rays -->
+    <div class="scanning-rays">
+        <div class="ray r1"></div>
+        <div class="ray r2"></div>
+        <div class="ray r3"></div>
+    </div>
+    
+    <!-- Error Core -->
+    <div class="error-core">
+        <!-- Lock Shield Animation -->
+        <div class="shield-container">
+            <div class="shield-rings">
+                <div class="s-ring s1"></div>
+                <div class="s-ring s2"></div>
+            </div>
+            <div class="lock-icon">
+                <svg viewBox="0 0 60 70" class="lock-svg">
+                    <path d="M10,35 L10,60 Q10,65 15,65 L45,65 Q50,65 50,60 L50,35 Q50,30 45,30 L15,30 Q10,30 10,35 Z" 
+                          fill="none" stroke="#ffa502" stroke-width="3" class="lock-body"/>
+                    <path d="M18,30 L18,20 Q18,8 30,8 Q42,8 42,20 L42,30" 
+                          fill="none" stroke="#ffa502" stroke-width="3" stroke-linecap="round" class="lock-shackle"/>
+                    <circle cx="30" cy="47" r="5" fill="#ffa502" class="lock-hole"/>
+                    <line x1="30" y1="52" x2="30" y2="58" stroke="#ffa502" stroke-width="3" stroke-linecap="round"/>
+                </svg>
+            </div>
+        </div>
+        
+        <!-- Error Code -->
+        <div class="error-code-wrapper">
+            <h1 class="error-code auth-glitch" data-text="401">401</h1>
+        </div>
+        
+        <!-- Access Denied Message -->
+        <div class="access-box">
+            <div class="access-header">
+                <span class="scan-icon">◈</span>
+                <span>BIOMETRIC VERIFICATION REQUIRED</span>
+            </div>
+            <h2 class="access-title">AUTHENTICATION REQUIRED</h2>
+            <p class="access-description">
+                Neural signature not recognized.
+                <br>
+                <span class="access-code">[STATUS: IDENTITY_UNVERIFIED]</span>
+            </p>
+        </div>
+        
+        <!-- Auth Status -->
+        <div class="auth-panel">
+            <div class="auth-scanner">
+                <div class="scan-bar"></div>
+            </div>
+            <div class="auth-status">
+                <span class="status-text">AWAITING CREDENTIALS</span>
+            </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <a href="{{ url_for('auth.login') }}" class="cyber-btn authenticate">
+                <i class="bi bi-fingerprint"></i>
+                <span>AUTHENTICATE</span>
+            </a>
+            <a href="{{ url_for('dashboard.index') }}" class="cyber-btn secondary">
+                <i class="bi bi-house"></i>
+                <span>RETURN HOME</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;900&display=swap');
+
+.cyber-error-container.error-401 {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1a1500 0%, #0d0d0d 50%, #0a0a0f 100%);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.security-field {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at center, rgba(255, 165, 2, 0.08) 0%, transparent 60%);
+}
+
+.hex-grid {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='49' viewBox='0 0 28 49'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%23ffa502' fill-opacity='0.03'%3E%3Cpath d='M13.99 9.25l13 7.5v15l-13 7.5L1 31.75v-15l12.99-7.5zM3 17.9v12.7l10.99 6.34 11-6.35V17.9l-11-6.34L3 17.9zM0 15l12.98-7.5V0h-2v6.35L0 12.69v2.3zm0 18.5L12.98 41v8h-2v-6.85L0 35.81v-2.3zM15 0v7.5L27.99 15H28v-2.31h-.01L17 6.35V0h-2zm0 49v-8l12.99-7.5H28v2.31h-.01L17 42.15V49h-2z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    animation: hexFloat 30s linear infinite;
+}
+
+@keyframes hexFloat {
+    0% { background-position: 0 0; }
+    100% { background-position: 56px 98px; }
+}
+
+.scanning-rays {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 400px;
+    height: 400px;
+    pointer-events: none;
+}
+
+.ray {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 2px;
+    height: 150px;
+    background: linear-gradient(180deg, transparent, rgba(255, 165, 2, 0.3), transparent);
+    transform-origin: top center;
+    animation: raySweep 4s ease-in-out infinite;
+}
+
+.ray.r1 { animation-delay: 0s; }
+.ray.r2 { animation-delay: 1.33s; }
+.ray.r3 { animation-delay: 2.66s; }
+
+@keyframes raySweep {
+    0%, 100% { transform: rotate(0deg); opacity: 0.5; }
+    50% { transform: rotate(360deg); opacity: 0.8; }
+}
+
+.error-core {
+    text-align: center;
+    z-index: 10;
+    padding: 2rem;
+}
+
+.shield-container {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 1rem;
+}
+
+.shield-rings {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.s-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: 2px dashed rgba(255, 165, 2, 0.3);
+    border-radius: 50%;
+    animation: ringRotate 10s linear infinite;
+}
+
+.s-ring.s1 { width: 90px; height: 90px; animation-direction: normal; }
+.s-ring.s2 { width: 110px; height: 110px; animation-direction: reverse; }
+
+@keyframes ringRotate {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+.lock-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 50px;
+    height: 60px;
+}
+
+.lock-svg { width: 100%; height: 100%; }
+
+.lock-body, .lock-shackle {
+    animation: lockGlow 2s ease-in-out infinite;
+}
+
+@keyframes lockGlow {
+    0%, 100% { filter: drop-shadow(0 0 5px #ffa502); }
+    50% { filter: drop-shadow(0 0 15px #ffa502); }
+}
+
+.lock-hole {
+    animation: holePulse 1.5s ease-in-out infinite;
+}
+
+@keyframes holePulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.error-code {
+    font-size: clamp(5rem, 18vw, 10rem);
+    font-weight: 900;
+    font-family: 'Orbitron', sans-serif;
+    color: #ffa502;
+    text-shadow: 0 0 40px rgba(255, 165, 2, 0.6);
+}
+
+.auth-glitch {
+    animation: authGlitch 3s infinite;
+}
+
+@keyframes authGlitch {
+    0%, 95%, 100% { transform: translate(0); }
+    96% { transform: translate(-2px, 0); }
+    97% { transform: translate(2px, 0); }
+    98% { transform: translate(-1px, 1px); }
+}
+
+.access-box {
+    background: rgba(255, 165, 2, 0.08);
+    border: 1px solid rgba(255, 165, 2, 0.2);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin: 1.5rem auto;
+    max-width: 400px;
+}
+
+.access-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.7rem;
+    color: #ffa502;
+    letter-spacing: 2px;
+}
+
+.scan-icon {
+    animation: iconRotate 2s linear infinite;
+}
+
+@keyframes iconRotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.access-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.3rem;
+    color: #fff;
+    margin-bottom: 0.5rem;
+    letter-spacing: 2px;
+}
+
+.access-description { color: #8892a0; font-size: 0.95rem; }
+
+.access-code { color: #ffa502; font-family: 'Courier New', monospace; font-size: 0.85rem; }
+
+.auth-panel {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 165, 2, 0.15);
+    border-radius: 8px;
+    padding: 1rem;
+    margin: 1.5rem auto;
+    max-width: 300px;
+}
+
+.auth-scanner {
+    height: 4px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 0.75rem;
+}
+
+.scan-bar {
+    height: 100%;
+    width: 30%;
+    background: linear-gradient(90deg, transparent, #ffa502, transparent);
+    animation: scanMove 2s ease-in-out infinite;
+}
+
+@keyframes scanMove {
+    0%, 100% { transform: translateX(-100%); }
+    50% { transform: translateX(300%); }
+}
+
+.auth-status { text-align: center; }
+
+.status-text {
+    font-size: 0.8rem;
+    color: #ffa502;
+    letter-spacing: 2px;
+    animation: textFlash 1.5s infinite;
+}
+
+@keyframes textFlash {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.action-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+.cyber-btn {
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 5px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.cyber-btn.authenticate {
+    background: linear-gradient(135deg, #ffa502, #ffcc00);
+    color: #0a0a0f;
+    box-shadow: 0 0 20px rgba(255, 165, 2, 0.4);
+}
+
+.cyber-btn.authenticate:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 30px rgba(255, 165, 2, 0.6);
+}
+
+.cyber-btn.secondary {
+    background: transparent;
+    color: #ffa502;
+    border: 1px solid #ffa502;
+}
+
+.cyber-btn.secondary:hover {
+    background: rgba(255, 165, 2, 0.1);
+    transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+    .action-buttons { flex-direction: column; align-items: center; }
+    .cyber-btn { width: 100%; max-width: 250px; justify-content: center; }
+}
+</style>
+</body>
+</html>

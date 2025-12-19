@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-NIDS | AI Network Intrusion Detection System</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #0d6efd;
+            --secondary-color: #6c757d;
+            --success-color: #198754;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --dark-bg: #0a0a0f;
+            --card-bg: #12121a;
+            --border-color: #2a2a3a;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--dark-bg);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* Animated Background */
+        .hero-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(13, 110, 253, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(220, 53, 69, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(25, 135, 84, 0.05) 0%, transparent 50%);
+        }
+        
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+        }
+        
+        /* Navigation */
+        .navbar {
+            background: rgba(10, 10, 15, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: #fff !important;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .navbar-brand i {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+        }
+        
+        /* Hero Section */
+        .hero {
+            min-height: calc(100vh - 76px);
+            display: flex;
+            align-items: center;
+            padding: 4rem 2rem;
+        }
+        
+        .hero-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+        
+        .hero-text h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+        }
+        
+        .hero-text h1 span {
+            background: linear-gradient(135deg, var(--primary-color), #00d4ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .hero-text p {
+            font-size: 1.2rem;
+            color: #a0a0a0;
+            margin-bottom: 2rem;
+            line-height: 1.8;
+        }
+        
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .btn-hero {
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-hero-primary {
+            background: linear-gradient(135deg, var(--primary-color), #0056d6);
+            border: none;
+            color: #fff;
+        }
+        
+        .btn-hero-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(13, 110, 253, 0.4);
+        }
+        
+        .btn-hero-outline {
+            background: transparent;
+            border: 2px solid var(--border-color);
+            color: #fff;
+        }
+        
+        .btn-hero-outline:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--primary-color);
+        }
+        
+        /* Stats Preview */
+        .hero-visual {
+            position: relative;
+        }
+        
+        .dashboard-preview {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: 0 20px 80px rgba(0, 0, 0, 0.5);
+        }
+        
+        .preview-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .preview-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .preview-dot.red { background: #ff5f57; }
+        .preview-dot.yellow { background: #febc2e; }
+        .preview-dot.green { background: #28c840; }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem;
+        }
+        
+        .stat-card .icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .stat-card .icon.blue { background: rgba(13, 110, 253, 0.2); color: var(--primary-color); }
+        .stat-card .icon.red { background: rgba(220, 53, 69, 0.2); color: var(--danger-color); }
+        .stat-card .icon.green { background: rgba(25, 135, 84, 0.2); color: var(--success-color); }
+        .stat-card .icon.yellow { background: rgba(255, 193, 7, 0.2); color: var(--warning-color); }
+        
+        .stat-card h3 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-card p {
+            font-size: 0.85rem;
+            color: #a0a0a0;
+            margin: 0;
+        }
+        
+        /* Features Section */
+        .features {
+            padding: 6rem 2rem;
+            background: rgba(18, 18, 26, 0.5);
+        }
+        
+        .features-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+        
+        .section-title h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        
+        .section-title p {
+            color: #a0a0a0;
+            font-size: 1.1rem;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+        }
+        
+        .feature-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-color);
+        }
+        
+        .feature-card .icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, var(--primary-color), #0056d6);
+        }
+        
+        .feature-card h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+        
+        .feature-card p {
+            color: #a0a0a0;
+            line-height: 1.7;
+        }
+        
+        /* Responsive */
+        @media (max-width: 992px) {
+            .hero-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+            
+            .hero-buttons {
+                justify-content: center;
+            }
+            
+            .hero-visual {
+                order: -1;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .hero-text h1 {
+                font-size: 2.5rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Animations */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .dashboard-preview {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        /* Pulse animation for live indicator */
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .live-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--success-color);
+            font-size: 0.85rem;
+        }
+        
+        .live-indicator::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: var(--success-color);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="hero-background"></div>
+    <div class="grid-overlay"></div>
+    
+    <!-- Navigation -->
+    <nav class="navbar">
+        <a class="navbar-brand" href="/">
+            <i class="bi bi-shield-check"></i>
+            AI-NIDS
+        </a>
+        <div class="d-flex gap-3">
+            <a href="{{ url_for('auth.login') }}" class="btn btn-outline-light">Login</a>
+            <a href="{{ url_for('auth.register') }}" class="btn btn-primary">Get Started</a>
+        </div>
+    </nav>
+    
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1>
+                    AI-Powered<br>
+                    <span>Network Intrusion</span><br>
+                    Detection System
+                </h1>
+                <p>
+                    Industry-grade, SOC-ready network security powered by machine learning.
+                    Detect known attacks, zero-day threats, and anomalies in real-time with
+                    explainable AI that shows you exactly why threats were flagged.
+                </p>
+                <div class="hero-buttons">
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-hero btn-hero-primary">
+                        <i class="bi bi-speedometer2 me-2"></i>
+                        Go to Dashboard
+                    </a>
+                    <a href="#features" class="btn btn-hero btn-hero-outline">
+                        <i class="bi bi-play-circle me-2"></i>
+                        Learn More
+                    </a>
+                </div>
+            </div>
+            
+            <div class="hero-visual">
+                <div class="dashboard-preview">
+                    <div class="preview-header">
+                        <span class="preview-dot red"></span>
+                        <span class="preview-dot yellow"></span>
+                        <span class="preview-dot green"></span>
+                        <span class="live-indicator ms-auto">Live Monitoring</span>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="icon blue">
+                                <i class="bi bi-activity"></i>
+                            </div>
+                            <h3>1.2M</h3>
+                            <p>Packets Analyzed</p>
+                        </div>
+                        <div class="stat-card">
+                            <div class="icon red">
+                                <i class="bi bi-shield-exclamation"></i>
+                            </div>
+                            <h3>47</h3>
+                            <p>Threats Detected</p>
+                        </div>
+                        <div class="stat-card">
+                            <div class="icon green">
+                                <i class="bi bi-check-circle"></i>
+                            </div>
+                            <h3>99.8%</h3>
+                            <p>Detection Rate</p>
+                        </div>
+                        <div class="stat-card">
+                            <div class="icon yellow">
+                                <i class="bi bi-clock-history"></i>
+                            </div>
+                            <h3>&lt;50ms</h3>
+                            <p>Response Time</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="features-container">
+            <div class="section-title">
+                <h2>Enterprise-Grade Security Features</h2>
+                <p>Everything you need to protect your network infrastructure</p>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="icon">
+                        <i class="bi bi-robot"></i>
+                    </div>
+                    <h3>Multi-Model AI Detection</h3>
+                    <p>Ensemble of XGBoost, Autoencoder, and LSTM models for comprehensive threat detection covering both known attacks and zero-day anomalies.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="icon">
+                        <i class="bi bi-lightning-charge"></i>
+                    </div>
+                    <h3>Real-Time Analysis</h3>
+                    <p>Sub-50ms inference time enables real-time threat detection and alerting, ensuring immediate response to security incidents.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="icon">
+                        <i class="bi bi-lightbulb"></i>
+                    </div>
+                    <h3>Explainable AI (XAI)</h3>
+                    <p>SHAP-powered explanations show exactly which features triggered each alert, enabling informed security decisions.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="icon">
+                        <i class="bi bi-graph-up-arrow"></i>
+                    </div>
+                    <h3>SOC Dashboard</h3>
+                    <p>Professional Security Operations Center interface with real-time charts, alert management, and comprehensive analytics.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="icon">
+                        <i class="bi bi-cloud-upload"></i>
+                    </div>
+                    <h3>Azure Ready</h3>
+                    <p>Docker containerized and optimized for Microsoft Azure deployment with seamless scaling capabilities.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="icon">
+                        <i class="bi bi-plug"></i>
+                    </div>
+                    <h3>Suricata & Zeek Integration</h3>
+                    <p>Native support for industry-standard IDS tools, combining signature-based and behavioral detection methods.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer style="padding: 2rem; text-align: center; border-top: 1px solid var(--border-color);">
+        <p style="color: #666;">© 2025 AI-NIDS. SOC-Grade Network Security.</p>
+    </footer>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
