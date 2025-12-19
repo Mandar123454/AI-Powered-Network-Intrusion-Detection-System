@@ -182,9 +182,9 @@ class ProductionConfig(Config):
     """Production configuration."""
     DEBUG = False
     
-    # Use environment variables in production
-    SECRET_KEY = os.environ.get('SECRET_KEY')
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
+    # Use environment variables in production with fallbacks
+    SECRET_KEY = os.environ.get('SECRET_KEY') or 'ai-nids-production-secret-key-2024'
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or f'sqlite:///{BASE_DIR / "data" / "nids.db"}'
     
     # Azure SQL connection string format
     # SQLALCHEMY_DATABASE_URI = 'mssql+pyodbc://user:pass@server.database.windows.net/dbname?driver=ODBC+Driver+17+for+SQL+Server'
@@ -192,6 +192,12 @@ class ProductionConfig(Config):
     @classmethod
     def init_app(cls, app):
         Config.init_app(app)
+        
+        # Ensure data directories exist
+        import os
+        data_dirs = ['data', 'data/logs', 'data/saved_models', 'data/datasets', 'data/processed', 'data/raw']
+        for d in data_dirs:
+            os.makedirs(os.path.join(BASE_DIR, d), exist_ok=True)
         
         # Log to stderr in production
         import logging

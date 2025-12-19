@@ -21,15 +21,15 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Create deployment package
+      - name: Install dependencies
         run: |
-          cp requirements-azure.txt requirements.txt
-          zip -r deploy.zip . -x "*.git*" -x "*__pycache__*" -x "*.pyc" -x "venv/*" -x ".venv/*" -x "notebooks/*" -x "data/datasets/*" -x "data/raw/*" -x "tests/*" -x "*.ipynb"
-
+          python -m pip install --upgrade pip
+          pip install -r requirements-azure.txt
+          
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v2
         with:
           app-name: 'ai-nids-app'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
-          package: deploy.zip
+          package: .
           
