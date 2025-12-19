@@ -63,6 +63,5 @@ jobs:
         id: deploy-to-webapp
         with:
           app-name: 'ai-nids-app'
-          slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
           
