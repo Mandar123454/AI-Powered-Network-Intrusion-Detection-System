@@ -57,8 +57,15 @@ jobs:
         with:
           name: ai-nids-package
 
-      - name: Deploy to Azure Web App
-        uses: azure/webapps-deploy@v2
+      - name: Azure Login
+        uses: azure/login@v2
         with:
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
-          package: release.zip
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploy via Azure CLI (Zip Deploy)
+        run: |
+          az webapp deploy \
+            --resource-group mk_ai-nids-rg \
+            --name ai-nids-auevh8cmbtemc8bj \
+            --src-path release.zip \
+            --type zip
